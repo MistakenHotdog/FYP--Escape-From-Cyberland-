@@ -1,61 +1,59 @@
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-    public float walkSpeed = 3f;
-    public float runSpeed = 6f;
-    public float crouchSpeed = 1.5f;
-    public float jumpHeight = 1.5f;      // how high to jump
-    public float gravity = -9.81f;
-    private CharacterController controller;
-    private Vector3 velocity;
-    private bool isCrouching = false;
-    private bool isGrounded;
+    [Header("Movement Settings")]
+    public float speed = 5f;                   // Movement speed
+    public float rotationSmoothness = 0.15f;   // Smooth turning
+
+    [Header("References")]
+    public Joystick joystick;                  // Mobile joystick reference
+
+    private Animator animator;                 // Animator on child object
+    private Rigidbody rb;                      // Rigidbody on parent
+    private Vector3 moveDirection;             // Calculated move direction
 
     void Start()
     {
-        controller = GetComponent<CharacterController>();
+        // Get Rigidbody from this (parent) object
+        rb = GetComponent<Rigidbody>();
+
+        // Get Animator from child (CharacterMesh)
+        animator = GetComponentInChildren<Animator>();
+
+        // Safety check
+        if (rb == null)
+            Debug.LogError("Rigidbody missing! Add Rigidbody to Player parent.");
+        if (animator == null)
+            Debug.LogError("Animator missing! Make sure your character model is a child of Player.");
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        Move();
-    }
+        // Read joystick input
+        float horizontal = joystick.Horizontal;
+        float vertical = joystick.Vertical;
 
-    void Move()
-    {
-        // Ground check
-        isGrounded = controller.isGrounded;
-        if (isGrounded && velocity.y < 0)
-            velocity.y = -2f; // small force to keep grounded
+        moveDirection = new Vector3(horizontal, 0f, vertical).normalized;
 
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
-
-        Vector3 move = transform.right * x + transform.forward * z;
-
-        // Choose speed
-        float speed = isCrouching ? crouchSpeed :
-            (Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed);
-
-        controller.Move(move * speed * Time.deltaTime);
-
-        // Jump
-        if (Input.GetButtonDown("Jump") && isGrounded && !isCrouching)
+        // Movement logic
+        if (moveDirection.magnitude >= 0.1f)
         {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            // Animate walk/run blend
+            animator.SetFloat("Speed", moveDirection.magnitude);
+
+            // Calculate movement
+            Vector3 move = moveDirection * speed * Time.fixedDeltaTime;
+            rb.MovePosition(rb.position + move);
+
+            // Smooth rotation
+            Vector3 targetForward = Vector3.Slerp(transform.forward, moveDirection, rotationSmoothness);
+            transform.forward = targetForward;
         }
-
-        // Apply gravity
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
-
-        // Toggle crouch
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        else
         {
-            isCrouching = !isCrouching;
-            controller.height = isCrouching ? 1.0f : 2.0f;
+            // Idle animation
+            animator.SetFloat("Speed", 0f);
         }
     }
 }
