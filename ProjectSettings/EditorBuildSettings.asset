@@ -1,17 +1,3 @@
-%YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
---- !u!1045 &1
-EditorBuildSettings:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Scenes:
-  - enabled: 1
-    path: Assets/Scenes/MainMenu.unity
-    guid: f7989261f86d49a48b4973499559281e
-  - enabled: 1
-    path: Assets/Scenes/LoadingScene.unity
-    guid: cf1fb37b94bd7e346962fcba36ed6286
-  - enabled: 1
-    path: Assets/Scenes/Moheed_Mec.unity
-    guid: 2a94455c33c686149ad8beab7abddfba
-  m_configObjects: {}
+version https://git-lfs.github.com/spec/v1
+oid sha256:032c9e51d2d230bdcafeb247eff4e81c0040525f57205598622262cd4c4a6b2e
+size 454
