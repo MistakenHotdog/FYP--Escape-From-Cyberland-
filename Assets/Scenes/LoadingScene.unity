@@ -736,7 +736,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fff69d0980931e845a1eb2e1004700dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneToLoad: Moheed_Mec
+  sceneToLoad: GameScene1
   progressBar: {fileID: 162353333}
   loadingText: {fileID: 300561503}
   fadePanel: {fileID: 405525125}

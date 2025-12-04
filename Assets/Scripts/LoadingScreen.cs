@@ -7,7 +7,7 @@ public class LoadingScreen : MonoBehaviour
 {
     [Header("Scene Settings")]
     [Tooltip("The name of the scene to load after this screen.")]
-    public string sceneToLoad = "Moheed_Mec";
+    public string sceneToLoad = "GameScene1";
 
     [Header("UI References")]
     public Slider progressBar;      // Slider UI element
