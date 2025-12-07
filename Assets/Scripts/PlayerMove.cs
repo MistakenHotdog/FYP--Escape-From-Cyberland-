@@ -4,8 +4,10 @@ using UnityEngine;
 public class PlayerMove : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float walkSpeed = 5f;
+    [SerializeField] private float runSpeed = 10f;
     [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] private float runThreshold = 0.9f;
 
     [Header("References")]
     [SerializeField] private Joystick joystick;
@@ -14,7 +16,6 @@ public class PlayerMove : MonoBehaviour
     private Rigidbody rb;
     private Transform cam;
     private int speedHash;
-
     private Vector3 moveDir;
 
     void Awake()
@@ -23,7 +24,6 @@ public class PlayerMove : MonoBehaviour
         cam = Camera.main.transform;
         speedHash = Animator.StringToHash("Speed");
 
-        // Freeze unwanted physics rotations
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
 
@@ -32,15 +32,17 @@ public class PlayerMove : MonoBehaviour
         float h = joystick.Horizontal;
         float v = joystick.Vertical;
 
-        Debug.Log("Joystick X: " + h + " | Y: " + v);
+        Vector2 joystickInput = new Vector2(h, v);
+        float inputMagnitude = Mathf.Clamp01(joystickInput.magnitude);
 
-        Vector3 move = new Vector3(h, 0, v);
-        rb.velocity = new Vector3(move.x * moveSpeed, rb.velocity.y, move.z * moveSpeed);
+        // Decide current speed
+        float currentSpeed = (inputMagnitude >= runThreshold) ? runSpeed : walkSpeed;
 
-        // Early exit for performance
-        if (Mathf.Approximately(h, 0f) && Mathf.Approximately(v, 0f))
+        // Stop if joystick is nearly idle
+        if (inputMagnitude < 0.1f)
         {
             animator.SetFloat(speedHash, 0f);
+            animator.speed = 1f; // Reset animation speed
             rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
             return;
         }
@@ -50,13 +52,12 @@ public class PlayerMove : MonoBehaviour
         Vector3 right = cam.right;
         forward.y = 0f;
         right.y = 0f;
-
         forward.Normalize();
         right.Normalize();
 
-        moveDir = (forward * v + right * h).normalized * moveSpeed;
+        moveDir = (forward * v + right * h).normalized * currentSpeed;
 
-        // Apply movement physics
+        // Apply movement
         rb.velocity = new Vector3(moveDir.x, rb.velocity.y, moveDir.z);
 
         // Smooth rotation
@@ -66,7 +67,11 @@ public class PlayerMove : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
         }
 
-        // Animation blend
-        animator.SetFloat(speedHash, moveDir.magnitude / moveSpeed);
+        // Animation blend (always walking)
+        animator.SetFloat(speedHash, 1f);
+
+        // Adjust animation speed proportional to movement speed
+        animator.speed = currentSpeed / walkSpeed;
+        // Example: walking = 1x speed, running = 2x speed if runSpeed = 2 * walkSpeed
     }
 }
