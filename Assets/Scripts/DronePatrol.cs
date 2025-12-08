@@ -12,30 +12,27 @@ public class DronePatrol : MonoBehaviour
     public float reachDistance = 0.3f;
 
     [Header("Laser Points")]
-    public Transform laserFrontLeft;
-    public Transform laserFrontRight;
-    public Transform laserBackLeft;
-    public Transform laserBackRight;
-    public float laserLength = 5f;
-    [Range(0, 90)]
-    public float laserDownAngle = 45f; // Angle pointing down
+    public Transform[] laserPoints;   // replace 4 separate points with array
+    public float laserLength = 7f;
+
+    [Header("Enemy Spawn Settings")]
+    public GameObject bugPrefab;     // Your flying bug enemy
+    public Transform spawnPoint;     // Where bug appears on drone
+    public float spawnCooldown = 5f;
+
+    private float nextSpawnTime = 0f;
 
     private Transform targetPoint;
-
-    private LineRenderer laserFL;
-    private LineRenderer laserFR;
-    private LineRenderer laserBL;
-    private LineRenderer laserBR;
+    private LineRenderer[] lasers;
 
     private void Start()
     {
         targetPoint = pointB;
 
-        // Initialize lasers
-        laserFL = CreateLaser(laserFrontLeft);
-        laserFR = CreateLaser(laserFrontRight);
-        laserBL = CreateLaser(laserBackLeft);
-        laserBR = CreateLaser(laserBackRight);
+        // Setup lasers
+        lasers = new LineRenderer[laserPoints.Length];
+        for (int i = 0; i < laserPoints.Length; i++)
+            lasers[i] = CreateLaser(laserPoints[i]);
     }
 
     private void Update()
@@ -43,80 +40,84 @@ public class DronePatrol : MonoBehaviour
         Patrol();
         KeepUpright();
         UpdateLasers();
+        DetectPlayerWithLaser();
     }
 
-    void Patrol()
+    // ---------------- Laser Setup ----------------
+
+    LineRenderer CreateLaser(Transform p)
     {
-        if (!pointA || !pointB) return;
+        GameObject obj = new GameObject(p.name + "_Laser");
+        obj.transform.parent = p;
+        obj.transform.localPosition = Vector3.zero;
 
-        Vector3 target = new Vector3(
-            targetPoint.position.x,
-            transform.position.y,
-            targetPoint.position.z
-        );
-
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            target,
-            moveSpeed * Time.deltaTime
-        );
-
-        Vector3 dir = target - transform.position;
-        dir.y = 0;
-
-        if (dir.sqrMagnitude > 0.01f)
-        {
-            Quaternion targetRot = Quaternion.LookRotation(dir);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRot,
-                rotateSpeed * Time.deltaTime
-            );
-        }
-
-        if (Vector3.Distance(transform.position, target) < reachDistance)
-        {
-            targetPoint = (targetPoint == pointA) ? pointB : pointA;
-        }
-    }
-
-    void KeepUpright()
-    {
-        transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
-    }
-
-    LineRenderer CreateLaser(Transform laserPoint)
-    {
-        GameObject laserObj = new GameObject(laserPoint.name + "_Laser");
-        laserObj.transform.parent = laserPoint;
-        laserObj.transform.localPosition = Vector3.zero;
-
-        LineRenderer lr = laserObj.AddComponent<LineRenderer>();
-        lr.startWidth = 0.02f;
-        lr.endWidth = 0.02f;
+        LineRenderer lr = obj.AddComponent<LineRenderer>();
+        lr.startWidth = 0.03f;
+        lr.endWidth = 0.03f;
         lr.positionCount = 2;
         lr.material = new Material(Shader.Find("Unlit/Color"));
         lr.material.color = Color.red;
+
         return lr;
     }
 
     void UpdateLasers()
     {
-        UpdateLaser(laserFL);
-        UpdateLaser(laserFR);
-        UpdateLaser(laserBL);
-        UpdateLaser(laserBR);
+        foreach (LineRenderer lr in lasers)
+        {
+            lr.SetPosition(0, lr.transform.position);
+            lr.SetPosition(1, lr.transform.position + Vector3.down * laserLength);
+        }
     }
 
-    void UpdateLaser(LineRenderer lr)
+    // ---------------- Laser Detection ----------------
+
+    void DetectPlayerWithLaser()
     {
-        if (!lr) return;
+        foreach (Transform p in laserPoints)
+        {
+            RaycastHit hit;
 
-        lr.SetPosition(0, lr.transform.position);
+            if (Physics.Raycast(p.position, Vector3.down, out hit, laserLength))
+            {
+                if (hit.collider.CompareTag("Player"))
+                {
+                    TrySpawnBug();
+                }
+            }
+        }
+    }
 
-        // Point directly downward in world space
-        Vector3 direction = Vector3.down;
+    void TrySpawnBug()
+    {
+        if (Time.time < nextSpawnTime) return;
 
-        lr.SetPosition(1, lr.transform.position + direction * laserLength);
+        Instantiate(bugPrefab, spawnPoint.position, Quaternion.identity);
+
+        nextSpawnTime = Time.time + spawnCooldown; // cooldown
+    }
+
+    // ---------------- Movement ----------------
+
+    void Patrol()
+    {
+        Vector3 target = new Vector3(targetPoint.position.x, transform.position.y, targetPoint.position.z);
+
+        transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
+
+        Vector3 dir = target - transform.position;
+        if (dir.sqrMagnitude > 0.01f)
+        {
+            Quaternion rot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, rotateSpeed * Time.deltaTime);
+        }
+
+        if (Vector3.Distance(transform.position, target) < reachDistance)
+            targetPoint = (targetPoint == pointA) ? pointB : pointA;
+    }
+
+    void KeepUpright()
+    {
+        transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
     }
 }
