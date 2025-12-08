@@ -1,18 +1,19 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class BugPatrol3D : MonoBehaviour
 {
     public Transform[] patrolPoints;
     public float speed = 2f;
     public float rotateSpeed = 5f;
-    private int currentPoint = 0;
 
+    private int currentPoint = 0;
     private float fixedY;
+    private Animator anim;
 
     void Start()
     {
-        // Lock the starting Y position
         fixedY = transform.position.y;
+        anim = GetComponent<Animator>();
     }
 
     void Update()
@@ -27,14 +28,22 @@ public class BugPatrol3D : MonoBehaviour
             target.position.z
         );
 
-        // Movement
+        float distance = Vector3.Distance(transform.position, targetPos);
+
+        // If moving → play walk animation
+        if (distance > 0.3f)
+            anim.SetBool("isMoving", true);
+        else
+            anim.SetBool("isMoving", false);
+
+        // Move bug
         transform.position = Vector3.MoveTowards(
             transform.position,
             targetPos,
             speed * Time.deltaTime
         );
 
-        // Rotation
+        // Rotate
         Vector3 direction = (targetPos - transform.position).normalized;
         if (direction != Vector3.zero)
         {
@@ -42,8 +51,8 @@ public class BugPatrol3D : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, rotateSpeed * Time.deltaTime);
         }
 
-        // Switch patrol point
-        if (Vector3.Distance(transform.position, targetPos) < 0.3f)
+        // Switch waypoint
+        if (distance < 0.3f)
         {
             currentPoint = (currentPoint + 1) % patrolPoints.Length;
         }
