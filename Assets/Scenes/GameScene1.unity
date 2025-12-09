@@ -6381,8 +6381,9 @@ GameObject:
   - component: {fileID: 349505009}
   - component: {fileID: 349505008}
   - component: {fileID: 349505007}
+  - component: {fileID: 349505010}
   m_Layer: 3
-  m_Name: PlayerGlow
+  m_Name: ' NeonCircle'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6475,6 +6476,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 349505005}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &349505010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 349505005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf08447e22f3ee54eaeed53f74baa4f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  safeMaterial: {fileID: 2100000, guid: a0257560cbd16d042b1276863b58af91, type: 2}
+  detectedMaterial: {fileID: 2100000, guid: 45ea0642ae1f3524bb280b9620deb4d2, type: 2}
 --- !u!1 &380621905
 GameObject:
   m_ObjectHideFlags: 0
@@ -7157,6 +7172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stealthMeter: {fileID: 1366494398}
+  glowController: {fileID: 0}
   playerHealth: {fileID: 547922206}
   detectionDamage: 5
   drones:
@@ -7619,7 +7635,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5666773957880323177, guid: 7d610277971c2c243be6ddc288bb9268, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -94.09
+      value: -59.7
       objectReference: {fileID: 0}
     - target: {fileID: 5666773957880323177, guid: 7d610277971c2c243be6ddc288bb9268, type: 3}
       propertyPath: m_LocalPosition.y
@@ -7627,7 +7643,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5666773957880323177, guid: 7d610277971c2c243be6ddc288bb9268, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 22.6
+      value: 13.1
       objectReference: {fileID: 0}
     - target: {fileID: 5666773957880323177, guid: 7d610277971c2c243be6ddc288bb9268, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10130,6 +10146,7 @@ GameObject:
   - component: {fileID: 1366494397}
   - component: {fileID: 1366494399}
   - component: {fileID: 1366494398}
+  - component: {fileID: 1366494400}
   m_Layer: 5
   m_Name: StealthMeter
   m_TagString: Untagged
@@ -10194,6 +10211,36 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1366494396}
   m_CullTransparentMesh: 1
+--- !u!114 &1366494400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1366494396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f0e3cb6c9c7684478dec472a6526c23, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stealthMeter: {fileID: 1366494398}
+  glowController: {fileID: 349505010}
+  playerHealth: {fileID: 547922206}
+  detectionDamage: 5
+  drones:
+  - {fileID: 441774936}
+  phishingBots:
+  - {fileID: 1126923578}
+  - {fileID: 543798614}
+  cameras:
+  - {fileID: 1275470938}
+  - {fileID: 1958520989}
+  - {fileID: 1958520989}
+  detectionDistance: 20
+  useLineOfSight: 1
+  obstructionMask:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!1 &1369912443
 GameObject:
   m_ObjectHideFlags: 0

@@ -6,6 +6,9 @@ public class StealthDetection : MonoBehaviour
     [Header("UI")]
     public Image stealthMeter;
 
+    [Header("Glow Feedback")]
+    public StealthGlowController glowController;   // <--- ADDED
+
     [Header("Player Health Reference")]
     public PlayerHealth playerHealth;
     public float detectionDamage = 5f;
@@ -26,9 +29,15 @@ public class StealthDetection : MonoBehaviour
     {
         isDetected = CheckDetection();
 
+        // Change UI color
         if (stealthMeter != null)
             stealthMeter.color = isDetected ? Color.red : Color.green;
 
+        // Change glow color under player
+        if (glowController != null)
+            glowController.SetDetected(isDetected);   // <-- ADDED
+
+        // Damage over time when detected
         if (isDetected && playerHealth != null)
             playerHealth.TakeDamage(detectionDamage * Time.deltaTime);
     }
@@ -61,7 +70,7 @@ public class StealthDetection : MonoBehaviour
             }
         }
 
-        // 3. Surveillance cameras (already detect player inside script)
+        // 3. Cameras
         foreach (SurveillanceCamera cam in cameras)
         {
             if (cam == null) continue;
