@@ -1,11 +1,14 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public Slider healthBar;        // Assign PlayerHealthBar
-    public float maxHealth = 100f;  // Maximum health
+    public Slider healthBar;
+    public float maxHealth = 100f;
     private float currentHealth;
+
+    [Header("UI Reference")]
+    public TerminationUI terminationUI;   // <-- ADD THIS
 
     void Start()
     {
@@ -14,7 +17,6 @@ public class PlayerHealth : MonoBehaviour
         healthBar.value = currentHealth;
     }
 
-    // Call this function to deal damage
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
@@ -30,6 +32,14 @@ public class PlayerHealth : MonoBehaviour
     void Die()
     {
         Debug.Log("Player died!");
-        // Add respawn or game over logic here
+
+        // 🟥 SHOW TERMINATION (GAME OVER UI)
+        if (terminationUI != null)
+        {
+            terminationUI.ShowGameOver();
+        }
+
+        // Freeze player movement (optional)
+        Time.timeScale = 0f;
     }
 }
