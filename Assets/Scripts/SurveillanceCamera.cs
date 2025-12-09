@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 public class SurveillanceCamera : MonoBehaviour
@@ -362,6 +362,9 @@ public class SurveillanceCamera : MonoBehaviour
         if (cameraLight != null)
             cameraLight.enabled = true;
     }
+
+    // ✅ Added for StealthDetection compatibility
+    public bool IsDetectingPlayer => isPlayerDetected;
 
     // Visualization in editor
     private void OnDrawGizmos()
