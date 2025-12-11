@@ -23,8 +23,13 @@ public class EnemyAI : MonoBehaviour
     public float shootDamage = 10f;
     public LayerMask shootLayerMask = ~0;
 
+    [Header("Muzzle & Audio")]
+    public ParticleSystem muzzleFlash; // assign a ParticleSystem prefab or child
+    public AudioClip shootSFX;
+    private AudioSource audioSource;
+
     // Patrol timing
-    public float idleTimeAtPatrolPoint = 2f;
+    public float idleTimeAtPatrolPoint = 4f;
 
     // Animator parameter names
     private const string ANIM_SPEED = "Speed";
@@ -48,6 +53,13 @@ public class EnemyAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+        }
     }
 
     void Start()
@@ -193,17 +205,33 @@ public class EnemyAI : MonoBehaviour
     {
         yield return null;
 
+        if (muzzleFlash != null)
+        {
+            // If muzzleFlash is a prefab instance, Play(); if it's a ParticleSystem child, Play() works
+            muzzleFlash.Play();
+        }
+
+        // Play shooting sound
+        if (shootSFX != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(shootSFX);
+        }
+
         Vector3 origin = muzzle ? muzzle.position : transform.position + Vector3.up * 1.5f;
         Vector3 dir = (player.position + Vector3.up * 1f) - origin;
 
         RaycastHit hit;
         if (Physics.Raycast(origin, dir.normalized, out hit, shootRange, shootLayerMask))
         {
-            // Replace with your health script
-            // Example:
-            // hit.collider.GetComponent<Health>()?.TakeDamage(shootDamage);
+            // Damage the player if hit
+            PlayerHealth playerHealth = hit.collider.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(shootDamage);
+            }
         }
     }
+
 
     void OnDrawGizmosSelected()
     {
