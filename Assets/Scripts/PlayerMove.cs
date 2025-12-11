@@ -13,6 +13,10 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private Joystick joystick;
     [SerializeField] private Animator animator;
 
+    [Header("Temporary Effects")]
+    [Range(0f, 1f)]
+    public float speedMultiplier = 1f; // 1 = normal, <1 = slowed
+
     private Rigidbody rb;
     private Transform cam;
     private int speedHash;
@@ -25,8 +29,8 @@ public class PlayerMove : MonoBehaviour
         speedHash = Animator.StringToHash("Speed");
 
         rb.constraints = RigidbodyConstraints.FreezeRotationX |
-                 RigidbodyConstraints.FreezeRotationY |
-                 RigidbodyConstraints.FreezeRotationZ;
+                         RigidbodyConstraints.FreezeRotationY |
+                         RigidbodyConstraints.FreezeRotationZ;
     }
 
     void FixedUpdate()
@@ -37,8 +41,8 @@ public class PlayerMove : MonoBehaviour
         Vector2 joystickInput = new Vector2(h, v);
         float inputMagnitude = Mathf.Clamp01(joystickInput.magnitude);
 
-        // Decide current speed
-        float currentSpeed = (inputMagnitude >= runThreshold) ? runSpeed : walkSpeed;
+        // Decide current speed (apply speed multiplier)
+        float currentSpeed = ((inputMagnitude >= runThreshold) ? runSpeed : walkSpeed) * speedMultiplier;
 
         // Stop if joystick is nearly idle
         if (inputMagnitude < 0.1f)
@@ -69,11 +73,10 @@ public class PlayerMove : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
         }
 
-        // Animation blend (always walking)
+        // Animation blend
         animator.SetFloat(speedHash, 1f);
 
         // Adjust animation speed proportional to movement speed
         animator.speed = currentSpeed / walkSpeed;
-        // Example: walking = 1x speed, running = 2x speed if runSpeed = 2 * walkSpeed
     }
 }
