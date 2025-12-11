@@ -1,148 +1,216 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(Animator))]
 public class EnemyAI : MonoBehaviour
 {
-    [Header("AI Settings")]
-    public Transform[] patrolPoints;
-    public float chaseDistance = 6f;
-    public float attackDistance = 1.6f;
-    public float idleTime = 2f;
-    public float patrolSpeed = 2f;
-    public float chaseSpeed = 4f;
+    public Transform patrolPointA;
+    public Transform patrolPointB;
+    public string playerTag = "Player";
 
-    [Header("References")]
-    public Animator animator;
+    // Movement speeds
+    public float walkSpeed = 2f;
+    public float runSpeed = 4.5f;
 
-    [HideInInspector] public StateMachine StateMachine;
-    [HideInInspector] public NavMeshAgent Agent;
+    // Player detection and shooting
+    public float detectionRange = 15f;
+    public float shootRange = 10f;
+    public float stoppingDistance = 9f;
+    public float fireRate = 0.6f;
+    public float turnSpeed = 6f;
 
+    public Transform muzzle;
+    public float shootDamage = 10f;
+    public LayerMask shootLayerMask = ~0;
+
+    // Patrol timing
+    public float idleTimeAtPatrolPoint = 2f;
+
+    // Animator parameter names
+    private const string ANIM_SPEED = "Speed";
+    private const string ANIM_IS_SHOOTING = "IsShooting";
+    private const string ANIM_TURN_TRIGGER = "TurnTrigger";
+    private const string ANIM_IDLE_TRIGGER = "IdleTrigger";
+
+    private NavMeshAgent agent;
+    private Animator animator;
     private Transform player;
 
-    // Animation parameter hashes (more efficient than strings)
-    private readonly int isWalkingHash = Animator.StringToHash("isWalking");
-    private readonly int isRunningHash = Animator.StringToHash("isRunning");
-    private readonly int isAttackingHash = Animator.StringToHash("isAttacking");
-    private readonly int speedHash = Animator.StringToHash("speed");
+    private enum AIState { Patrol, Approach, Shooting }
+    private AIState state = AIState.Patrol;
 
-    // States
-    [HideInInspector] public IdleState idleState;
-    [HideInInspector] public PatrolState patrolState;
-    [HideInInspector] public ChaseState chaseState;
-    [HideInInspector] public AttackState attackState;
+    private Transform currentPatrolTarget;
+    private bool patrollingForward = true;
+    private float lastFireTime = 0f;
+    private bool isWaitingAtPoint = false;
 
-    private void Awake()
+    void Awake()
     {
-        Agent = GetComponent<NavMeshAgent>();
+        agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
+    }
 
-        // Get animator if not assigned
-        if (animator == null)
-            animator = GetComponent<Animator>();
+    void Start()
+    {
+        if (patrolPointA == null || patrolPointB == null)
+        {
+            Debug.LogError("EnemyAI: Missing patrol points.");
+            enabled = false;
+            return;
+        }
 
-        StateMachine = new StateMachine();
+        GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
+        if (playerObj != null) player = playerObj.transform;
 
-        // Find player safely
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
-            player = playerObj.transform;
+        currentPatrolTarget = patrolPointA;
+
+        agent.speed = walkSpeed;
+        agent.stoppingDistance = 0f;
+        agent.SetDestination(currentPatrolTarget.position);
+    }
+
+    void Update()
+    {
+        if (player == null) return;
+
+        float distToPlayer = Vector3.Distance(transform.position, player.position);
+
+        if (distToPlayer <= detectionRange)
+        {
+            if (distToPlayer > shootRange * 1.1f)
+                state = AIState.Approach;
+            else
+                state = AIState.Shooting;
+        }
         else
-            Debug.LogError("Player not found! Make sure player has 'Player' tag.");
-
-        // Create states
-        idleState = new IdleState(this, idleTime);
-        patrolState = new PatrolState(this);
-        chaseState = new ChaseState(this);
-        attackState = new AttackState(this);
-    }
-
-    private void Start()
-    {
-        StateMachine.Initialize(idleState);
-    }
-
-    private void Update()
-    {
-        StateMachine.Tick();
-        UpdateAnimationSpeed();
-    }
-
-    // Animation Control Methods
-    public void SetIdleAnimation()
-    {
-        animator.SetBool(isWalkingHash, false);
-        animator.SetBool(isRunningHash, false);
-    }
-
-    public void SetWalkAnimation()
-    {
-        animator.SetBool(isWalkingHash, true);
-        animator.SetBool(isRunningHash, false);
-    }
-
-    public void SetRunAnimation()
-    {
-        animator.SetBool(isWalkingHash, false);
-        animator.SetBool(isRunningHash, true);
-    }
-
-    public void TriggerAttackAnimation()
-    {
-        animator.SetTrigger(isAttackingHash);
-    }
-
-    // Update speed parameter based on agent velocity
-    private void UpdateAnimationSpeed()
-    {
-        if (Agent != null && animator != null)
         {
-            float speed = Agent.velocity.magnitude;
-            animator.SetFloat(speedHash, speed);
+            state = AIState.Patrol;
+        }
+
+        switch (state)
+        {
+            case AIState.Patrol:
+                HandlePatrol();
+                break;
+
+            case AIState.Approach:
+                HandleApproach();
+                break;
+
+            case AIState.Shooting:
+                HandleShooting();
+                break;
+        }
+
+        animator.SetFloat(ANIM_SPEED, agent.velocity.magnitude);
+    }
+
+    // PATROL
+    void HandlePatrol()
+    {
+        animator.SetBool(ANIM_IS_SHOOTING, false);
+        agent.speed = walkSpeed;
+        agent.isStopped = false;
+        agent.stoppingDistance = 0f;
+
+        if (isWaitingAtPoint) return;
+
+        if (!agent.pathPending &&
+            agent.remainingDistance <= agent.stoppingDistance + 0.1f)
+        {
+            StartCoroutine(PatrolIdleSequence());
         }
     }
 
-    // Helper Methods
-    public Transform GetPlayer() => player;
-
-    public float GetDistanceToPlayer()
+    IEnumerator PatrolIdleSequence()
     {
-        if (player == null) return Mathf.Infinity;
-        return Vector3.Distance(transform.position, player.position);
+        isWaitingAtPoint = true;
+
+        agent.isStopped = true;
+
+        // Go to idle animation
+        animator.SetTrigger(ANIM_IDLE_TRIGGER);
+
+        yield return new WaitForSeconds(idleTimeAtPatrolPoint);
+
+        // Turn animation before walking again
+        animator.SetTrigger(ANIM_TURN_TRIGGER);
+
+        yield return new WaitForSeconds(0.5f);
+
+        patrollingForward = !patrollingForward;
+        currentPatrolTarget = patrollingForward ? patrolPointA : patrolPointB;
+
+        agent.isStopped = false;
+        agent.SetDestination(currentPatrolTarget.position);
+
+        isWaitingAtPoint = false;
     }
 
-    public bool IsPlayerInChaseRange()
+    // APPROACH PLAYER
+    void HandleApproach()
     {
-        return GetDistanceToPlayer() <= chaseDistance;
+        animator.SetBool(ANIM_IS_SHOOTING, false);
+        agent.speed = runSpeed;
+        agent.isStopped = false;
+        agent.stoppingDistance = stoppingDistance;
+
+        Vector3 dir = (player.position - transform.position).normalized;
+        Vector3 targetPos = player.position - dir * (shootRange * 0.9f);
+
+        agent.SetDestination(targetPos);
+
+        float angle = Vector3.Angle(transform.forward, player.position - transform.position);
+        if (angle > 60f)
+            animator.SetTrigger(ANIM_TURN_TRIGGER);
     }
 
-    public bool IsPlayerInAttackRange()
+    // SHOOTING
+    void HandleShooting()
     {
-        return GetDistanceToPlayer() <= attackDistance;
+        agent.isStopped = true;
+        agent.speed = 0f;
+
+        animator.SetBool(ANIM_IS_SHOOTING, true);
+
+        Vector3 lookDir = player.position - transform.position;
+        lookDir.y = 0f;
+
+        if (lookDir.sqrMagnitude > 0.001f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(lookDir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * turnSpeed);
+        }
+
+        if (Time.time >= lastFireTime + 1f / fireRate)
+        {
+            lastFireTime = Time.time;
+            StartCoroutine(FireSingleShot());
+        }
     }
 
-    // Visualization in editor
-    private void OnDrawGizmosSelected()
+    IEnumerator FireSingleShot()
     {
-        // Chase range
+        yield return null;
+
+        Vector3 origin = muzzle ? muzzle.position : transform.position + Vector3.up * 1.5f;
+        Vector3 dir = (player.position + Vector3.up * 1f) - origin;
+
+        RaycastHit hit;
+        if (Physics.Raycast(origin, dir.normalized, out hit, shootRange, shootLayerMask))
+        {
+            // Replace with your health script
+            // Example:
+            // hit.collider.GetComponent<Health>()?.TakeDamage(shootDamage);
+        }
+    }
+
+    void OnDrawGizmosSelected()
+    {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, chaseDistance);
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        // Attack range
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackDistance);
-
-        // Patrol points
-        if (patrolPoints != null && patrolPoints.Length > 0)
-        {
-            Gizmos.color = Color.blue;
-            foreach (Transform point in patrolPoints)
-            {
-                if (point != null)
-                {
-                    Gizmos.DrawWireSphere(point.position, 0.5f);
-                }
-            }
-        }
+        Gizmos.DrawWireSphere(transform.position, shootRange);
     }
 }

@@ -36,7 +36,7 @@ public class LoadingScreen : MonoBehaviour
         {
             float progress = Mathf.Clamp01(operation.progress / 0.9f);
             progressBar.value = progress;
-            loadingText.text = "LOADING... " + (progress * 100f).ToString("F0") + "%";
+            loadingText.text = " " + (progress * 100f).ToString("F0") + "%";
 
             // When ready (almost done)
             if (progress >= 1f)
