@@ -4,13 +4,16 @@ public class DoorwayLaser : MonoBehaviour
 {
     public bool isOn = true;
     private Renderer[] laserRenderers;
-    private Collider laserCollider;
+    private Collider[] laserColliders;
 
     void Start()
     {
         // Get all Renderer components in child planes
         laserRenderers = GetComponentsInChildren<Renderer>();
-        laserCollider = GetComponent<Collider>();
+
+        // Get all Colliders in this object and its children
+        laserColliders = GetComponentsInChildren<Collider>();
+
         UpdateLaserState();
     }
 
@@ -28,9 +31,11 @@ public class DoorwayLaser : MonoBehaviour
             r.enabled = isOn;
         }
 
-        // Enable/disable the collider
-        if (laserCollider != null)
-            laserCollider.enabled = isOn;
+        // Enable/disable all child colliders
+        foreach (Collider c in laserColliders)
+        {
+            c.enabled = isOn;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
