@@ -1,41 +1,32 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DoorwayLaser : MonoBehaviour
 {
     public bool isOn = true;
-    private Renderer[] laserRenderers;
-    private Collider[] laserColliders;
+    public AudioClip dangerSound;
+    public AudioSource audioSource;
 
-    void Start()
+    void Awake()
     {
-        // Get all Renderer components in child planes
-        laserRenderers = GetComponentsInChildren<Renderer>();
+        // Ensure parent has AudioSource
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
 
-        // Get all Colliders in this object and its children
-        laserColliders = GetComponentsInChildren<Collider>();
-
-        UpdateLaserState();
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 1f; // 3D sound
     }
 
     public void ToggleLaser()
     {
         isOn = !isOn;
-        UpdateLaserState();
-    }
 
-    void UpdateLaserState()
-    {
-        // Enable/disable all child renderers
-        foreach (Renderer r in laserRenderers)
-        {
+        // Enable/disable all child cube renderers and colliders
+        foreach (Renderer r in GetComponentsInChildren<Renderer>())
             r.enabled = isOn;
-        }
 
-        // Enable/disable all child colliders
-        foreach (Collider c in laserColliders)
-        {
+        foreach (Collider c in GetComponentsInChildren<Collider>())
             c.enabled = isOn;
-        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -45,7 +36,10 @@ public class DoorwayLaser : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Debug.Log("Player hit by doorway laser!");
-            // Add damage or respawn here
+            if (audioSource != null && dangerSound != null)
+                audioSource.PlayOneShot(dangerSound);
+
+            // Add damage logic here if needed
         }
     }
 }

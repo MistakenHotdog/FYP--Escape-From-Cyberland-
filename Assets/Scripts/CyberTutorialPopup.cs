@@ -8,7 +8,7 @@ public class CyberTutorialPopup : MonoBehaviour
     public GameObject tutorialPanel;         // Panel
     public TextMeshProUGUI tutorialText;     // TMP Text
     public float typeSpeed = 0.03f;          // Typing speed
-    public float displayTimeAfterTyping = 2f;// Extra time panel stays after typing
+    public float displayTimeAfterTyping = 1f;// Extra time panel stays after typing
     public float fadeDuration = 0.5f;        // Fade in/out time
 
     private string fullText =

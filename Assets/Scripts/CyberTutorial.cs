@@ -16,7 +16,7 @@ public class CyberTutorial : MonoBehaviour
         "[*] Use cyber tools wisely to disable enemies.";
 
     public float typingSpeed = 0.05f;    // Time between letters
-    public float displayTime = 5f;       // Time panel stays after typing
+    public float displayTime = 3f;       // Time panel stays after typing
 
     void Start()
     {
