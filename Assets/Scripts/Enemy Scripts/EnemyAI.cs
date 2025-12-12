@@ -24,7 +24,7 @@ public class EnemyAI : MonoBehaviour
     public LayerMask shootLayerMask = ~0;
 
     // Patrol timing
-    public float idleTimeAtPatrolPoint = 2f;
+    public float idleTimeAtPatrolPoint = 4f;
 
     // Animator parameter names
     private const string ANIM_SPEED = "Speed";
