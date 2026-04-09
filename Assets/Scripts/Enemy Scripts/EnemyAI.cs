@@ -8,33 +8,31 @@ public class EnemyAI : MonoBehaviour
     public Transform patrolPointB;
     public string playerTag = "Player";
 
-    // Movement speeds
+    [Header("Movement")]
     public float walkSpeed = 2f;
     public float runSpeed = 4.5f;
 
-    // Player detection and shooting
-    public float detectionRange = 15f;
+    [Header("Detection")]
+    public float normalDetectionRange = 15f;
+    public float alertDetectionRange = 30f;
     public float shootRange = 10f;
     public float stoppingDistance = 9f;
+
+    [Header("Combat")]
     public float fireRate = 0.6f;
     public float turnSpeed = 6f;
-
     public Transform muzzle;
     public float shootDamage = 10f;
     public LayerMask shootLayerMask = ~0;
 
-    // Patrol timing
+    [Header("Patrol")]
     public float idleTimeAtPatrolPoint = 4f;
-
-    // Animator parameter names
-    private const string ANIM_SPEED = "Speed";
-    private const string ANIM_IS_SHOOTING = "IsShooting";
-    private const string ANIM_TURN_TRIGGER = "TurnTrigger";
-    private const string ANIM_IDLE_TRIGGER = "IdleTrigger";
 
     private NavMeshAgent agent;
     private Animator animator;
     private Transform player;
+
+    private bool isAlerted = false;
 
     private enum AIState { Patrol, Approach, Shooting }
     private AIState state = AIState.Patrol;
@@ -44,6 +42,11 @@ public class EnemyAI : MonoBehaviour
     private float lastFireTime = 0f;
     private bool isWaitingAtPoint = false;
 
+    private const string ANIM_SPEED = "Speed";
+    private const string ANIM_IS_SHOOTING = "IsShooting";
+    private const string ANIM_TURN_TRIGGER = "TurnTrigger";
+    private const string ANIM_IDLE_TRIGGER = "IdleTrigger";
+
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -52,20 +55,12 @@ public class EnemyAI : MonoBehaviour
 
     void Start()
     {
-        if (patrolPointA == null || patrolPointB == null)
-        {
-            Debug.LogError("EnemyAI: Missing patrol points.");
-            enabled = false;
-            return;
-        }
-
         GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
         if (playerObj != null) player = playerObj.transform;
 
         currentPatrolTarget = patrolPointA;
 
         agent.speed = walkSpeed;
-        agent.stoppingDistance = 0f;
         agent.SetDestination(currentPatrolTarget.position);
     }
 
@@ -75,7 +70,9 @@ public class EnemyAI : MonoBehaviour
 
         float distToPlayer = Vector3.Distance(transform.position, player.position);
 
-        if (distToPlayer <= detectionRange)
+        float currentDetectionRange = isAlerted ? alertDetectionRange : normalDetectionRange;
+
+        if (distToPlayer <= currentDetectionRange)
         {
             if (distToPlayer > shootRange * 1.1f)
                 state = AIState.Approach;
@@ -105,18 +102,33 @@ public class EnemyAI : MonoBehaviour
         animator.SetFloat(ANIM_SPEED, agent.velocity.magnitude);
     }
 
-    // PATROL
+    // ---------------- ALERT SYSTEM ----------------
+    public void SetAlert(bool alert)
+    {
+        isAlerted = alert;
+
+        if (alert)
+        {
+            agent.speed = runSpeed;
+            Debug.Log(name + " ALERTED");
+        }
+        else
+        {
+            agent.speed = walkSpeed;
+            Debug.Log(name + " CALM");
+        }
+    }
+
+    // ---------------- PATROL ----------------
     void HandlePatrol()
     {
         animator.SetBool(ANIM_IS_SHOOTING, false);
-        agent.speed = walkSpeed;
         agent.isStopped = false;
         agent.stoppingDistance = 0f;
 
         if (isWaitingAtPoint) return;
 
-        if (!agent.pathPending &&
-            agent.remainingDistance <= agent.stoppingDistance + 0.1f)
+        if (!agent.pathPending && agent.remainingDistance <= 0.1f)
         {
             StartCoroutine(PatrolIdleSequence());
         }
@@ -127,13 +139,10 @@ public class EnemyAI : MonoBehaviour
         isWaitingAtPoint = true;
 
         agent.isStopped = true;
-
-        // Go to idle animation
         animator.SetTrigger(ANIM_IDLE_TRIGGER);
 
         yield return new WaitForSeconds(idleTimeAtPatrolPoint);
 
-        // Turn animation before walking again
         animator.SetTrigger(ANIM_TURN_TRIGGER);
 
         yield return new WaitForSeconds(0.5f);
@@ -147,39 +156,33 @@ public class EnemyAI : MonoBehaviour
         isWaitingAtPoint = false;
     }
 
-    // APPROACH PLAYER
+    // ---------------- APPROACH ----------------
     void HandleApproach()
     {
         animator.SetBool(ANIM_IS_SHOOTING, false);
-        agent.speed = runSpeed;
         agent.isStopped = false;
         agent.stoppingDistance = stoppingDistance;
+        agent.speed = runSpeed;
 
         Vector3 dir = (player.position - transform.position).normalized;
         Vector3 targetPos = player.position - dir * (shootRange * 0.9f);
 
         agent.SetDestination(targetPos);
-
-        float angle = Vector3.Angle(transform.forward, player.position - transform.position);
-        if (angle > 60f)
-            animator.SetTrigger(ANIM_TURN_TRIGGER);
     }
 
-    // SHOOTING
+    // ---------------- SHOOTING ----------------
     void HandleShooting()
     {
         agent.isStopped = true;
-        agent.speed = 0f;
-
         animator.SetBool(ANIM_IS_SHOOTING, true);
 
         Vector3 lookDir = player.position - transform.position;
         lookDir.y = 0f;
 
-        if (lookDir.sqrMagnitude > 0.001f)
+        if (lookDir != Vector3.zero)
         {
-            Quaternion targetRot = Quaternion.LookRotation(lookDir);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * turnSpeed);
+            Quaternion rot = Quaternion.LookRotation(lookDir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * turnSpeed);
         }
 
         if (Time.time >= lastFireTime + 1f / fireRate)
@@ -194,23 +197,11 @@ public class EnemyAI : MonoBehaviour
         yield return null;
 
         Vector3 origin = muzzle ? muzzle.position : transform.position + Vector3.up * 1.5f;
-        Vector3 dir = (player.position + Vector3.up * 1f) - origin;
+        Vector3 dir = (player.position + Vector3.up) - origin;
 
-        RaycastHit hit;
-        if (Physics.Raycast(origin, dir.normalized, out hit, shootRange, shootLayerMask))
+        if (Physics.Raycast(origin, dir.normalized, out RaycastHit hit, shootRange, shootLayerMask))
         {
-            // Replace with your health script
-            // Example:
-            // hit.collider.GetComponent<Health>()?.TakeDamage(shootDamage);
+            // Add damage here if needed
         }
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRange);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, shootRange);
     }
 }

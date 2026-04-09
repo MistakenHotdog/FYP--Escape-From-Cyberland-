@@ -10358,7 +10358,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.16666667
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: ba842bc2f63c5e244b705c0afabf484a, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: bc44f08065bd93540a04ab7f15fe59fc, type: 2}
   m_BuildHeightMesh: 0
 --- !u!1 &988335025
 GameObject:
@@ -20115,6 +20115,51 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1663386131}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1668084166
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1668084168}
+  - component: {fileID: 1668084167}
+  m_Layer: 0
+  m_Name: AlarmSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1668084167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1668084166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7242613b10de3840b25e5abcedc30f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  alarmDuration: 10
+--- !u!4 &1668084168
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1668084166}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -7.1410666, y: -26.850224, z: 30.670012}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1668205837
 GameObject:
   m_ObjectHideFlags: 0
@@ -21684,7 +21729,8 @@ MonoBehaviour:
   playerTag: Player
   walkSpeed: 2
   runSpeed: 4.5
-  detectionRange: 15
+  normalDetectionRange: 15
+  alertDetectionRange: 30
   shootRange: 20
   stoppingDistance: 9
   fireRate: 0.6
@@ -40605,3 +40651,4 @@ SceneRoots:
   - {fileID: 988335027}
   - {fileID: 1827988219}
   - {fileID: 2028608363}
+  - {fileID: 1668084168}
