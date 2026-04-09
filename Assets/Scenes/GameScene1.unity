@@ -6556,7 +6556,7 @@ GameObject:
   - component: {fileID: 297428453}
   - component: {fileID: 297428452}
   m_Layer: 5
-  m_Name: JoystickPanel
+  m_Name: GamePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10012,7 +10012,7 @@ GameObject:
   - component: {fileID: 713297352}
   - component: {fileID: 713297351}
   m_Layer: 5
-  m_Name: PauseButton (1)
+  m_Name: PauseButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
