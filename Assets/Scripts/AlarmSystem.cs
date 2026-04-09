@@ -5,6 +5,10 @@ public class AlarmSystem : MonoBehaviour
 {
     public float alarmDuration = 10f;
 
+    [Header("Audio")]
+    public AudioSource alarmAudioSource;
+    public AudioClip alarmClip;
+
     private bool isAlarmActive = false;
 
     public void TriggerAlarm()
@@ -18,10 +22,18 @@ public class AlarmSystem : MonoBehaviour
     {
         isAlarmActive = true;
 
-        EnemyAI[] enemies = FindObjectsOfType<EnemyAI>();
-
         Debug.Log("🚨 ALARM TRIGGERED");
 
+        // 🔊 PLAY SOUND
+        if (alarmAudioSource != null && alarmClip != null)
+        {
+            alarmAudioSource.loop = true;
+            alarmAudioSource.clip = alarmClip;
+            alarmAudioSource.Play();
+        }
+
+        // Alert enemies
+        EnemyAI[] enemies = FindObjectsOfType<EnemyAI>();
         foreach (EnemyAI e in enemies)
         {
             if (e != null)
@@ -30,10 +42,17 @@ public class AlarmSystem : MonoBehaviour
 
         yield return new WaitForSeconds(alarmDuration);
 
+        // Stop alarm
         foreach (EnemyAI e in enemies)
         {
             if (e != null)
                 e.SetAlert(false);
+        }
+
+        // 🔇 STOP SOUND
+        if (alarmAudioSource != null)
+        {
+            alarmAudioSource.Stop();
         }
 
         Debug.Log("✅ Alarm Ended");

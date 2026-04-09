@@ -21,6 +21,15 @@ public class HackWireManager : MonoBehaviour
     public int maxAttempts = 2;
     private int attempts = 0;
 
+    // Player reference (disable movement instead of pausing time)
+    private MonoBehaviour playerController;
+
+    void Start()
+    {
+        // Find your player movement script here
+        playerController = FindObjectOfType<PlayerMove>();
+    }
+
     void Update()
     {
         if (currentLine != null && startNode != null)
@@ -30,14 +39,12 @@ public class HackWireManager : MonoBehaviour
         }
     }
 
-    // 🔥 START DRAG
     public void StartConnection(HackNodeUI node)
     {
         startNode = node;
         currentLine = Instantiate(linePrefab, hackPanel.transform);
     }
 
-    // 🔥 END DRAG
     public void EndConnection(HackNodeUI endNode)
     {
         if (startNode == null || currentLine == null) return;
@@ -55,7 +62,6 @@ public class HackWireManager : MonoBehaviour
         CheckConnections();
     }
 
-    // 🎯 PERFECT UI LINE POSITIONING
     void UpdateLine(Vector3 startScreen, Vector3 endScreen)
     {
         RectTransform canvasRect = hackPanel.GetComponent<RectTransform>();
@@ -64,30 +70,15 @@ public class HackWireManager : MonoBehaviour
         Vector2 startLocal;
         Vector2 endLocal;
 
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            canvasRect,
-            startScreen,
-            null,
-            out startLocal
-        );
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            canvasRect,
-            endScreen,
-            null,
-            out endLocal
-        );
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, startScreen, null, out startLocal);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, endScreen, null, out endLocal);
 
         Vector2 direction = endLocal - startLocal;
         float distance = direction.magnitude;
 
-        // Position line in center
         lineRect.anchoredPosition = startLocal + direction / 2f;
-
-        // Set length
         lineRect.sizeDelta = new Vector2(distance, 6f);
 
-        // Rotate line
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         lineRect.rotation = Quaternion.Euler(0, 0, angle);
     }
@@ -118,7 +109,6 @@ public class HackWireManager : MonoBehaviour
     {
         Debug.Log("✅ HACK SUCCESS");
 
-        // Disable all cameras
         var cams = FindObjectsOfType<SurveillanceCamera>();
         foreach (var cam in cams)
             cam.DisableCamera();
@@ -147,7 +137,6 @@ public class HackWireManager : MonoBehaviour
     {
         playerConnections.Clear();
 
-        // Delete all lines
         foreach (Transform child in hackPanel.transform)
         {
             if (child.name.Contains("UILine"))
@@ -155,16 +144,28 @@ public class HackWireManager : MonoBehaviour
         }
     }
 
+    // 🔥 OPEN UI (NO TIMESCALE FREEZE)
     public void OpenUI()
     {
         hackPanel.SetActive(true);
-        Time.timeScale = 0f;
+
+        // DO NOT pause time → keeps audio working
+        Time.timeScale = 1f;
+
+        // Disable player movement instead
+        if (playerController != null)
+            playerController.enabled = false;
     }
 
+    // 🔥 CLOSE UI
     public void CloseUI()
     {
         hackPanel.SetActive(false);
-        Time.timeScale = 1f;
+
+        // Re-enable player
+        if (playerController != null)
+            playerController.enabled = true;
+
         ResetPuzzle();
     }
 }
