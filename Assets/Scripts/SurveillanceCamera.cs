@@ -276,4 +276,17 @@ public class SurveillanceCamera : MonoBehaviour
     }
 
     public bool IsDetectingPlayer => isPlayerDetected;
+
+    public void DisableCamera()
+    {
+        enabled = false;
+
+        if (cameraLight != null)
+            cameraLight.enabled = false;
+
+        if (laserOrigin != null)
+            laserOrigin.gameObject.SetActive(false);
+
+        Debug.Log("Camera disabled!");
+    }
 }
