@@ -20740,6 +20740,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   alarmDuration: 10
+  alarmAudioSource: {fileID: 86854698}
+  alarmClip: {fileID: 8300000, guid: 34af45bbd221eb74da9b65649a9cc549, type: 3}
 --- !u!4 &1668084168
 Transform:
   m_ObjectHideFlags: 0
