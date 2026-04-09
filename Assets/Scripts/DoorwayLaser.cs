@@ -36,10 +36,12 @@ public class DoorwayLaser : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Debug.Log("Player hit by doorway laser!");
+
+            // 🚨 TRIGGER ALARM
+            FindObjectOfType<AlarmSystem>()?.TriggerAlarm();
+
             if (audioSource != null && dangerSound != null)
                 audioSource.PlayOneShot(dangerSound);
-
-            // Add damage logic here if needed
         }
     }
 }
