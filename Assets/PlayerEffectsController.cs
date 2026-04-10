@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
@@ -16,13 +16,12 @@ public class PlayerEffectsController : MonoBehaviour
     public float dofFocalLength = 80f;
 
     [Header("Timing")]
-    public float fadeDuration = 0.3f; // Adjustable in inspector for fade out
+    public float fadeDuration = 0.3f;
 
     private Vignette vignette;
     private DepthOfField depthOfField;
 
-    private float defaultVignette = 0f;
-    private float defaultFocusDistance = 10f;
+    private Coroutine currentEffect; // ✅ prevents stacking
 
     private void Awake()
     {
@@ -38,23 +37,24 @@ public class PlayerEffectsController : MonoBehaviour
         if (playerCamera == null)
             playerCamera = Camera.main;
 
-        // Find PostProcessVolume object named "PostProcessLayer"
+        // Find PostProcessVolume object
         GameObject ppObj = GameObject.Find("PostProcessLayer");
         if (ppObj != null)
             postProcessVolume = ppObj.GetComponent<PostProcessVolume>();
 
         if (postProcessVolume != null)
         {
-            // Start with weight 0 (effects OFF)
+            // Start OFF
             postProcessVolume.weight = 0f;
 
-            // Clone profile to avoid modifying original
+            // Clone profile
             postProcessVolume.profile = Instantiate(postProcessVolume.sharedProfile);
             var profile = postProcessVolume.profile;
 
             // Vignette
             if (!profile.TryGetSettings(out vignette))
                 vignette = profile.AddSettings<Vignette>();
+
             vignette.active = true;
             vignette.intensity.overrideState = true;
             vignette.intensity.value = vignetteIntensity;
@@ -62,6 +62,7 @@ public class PlayerEffectsController : MonoBehaviour
             // Depth of Field
             if (!profile.TryGetSettings(out depthOfField))
                 depthOfField = profile.AddSettings<DepthOfField>();
+
             depthOfField.active = true;
             depthOfField.focusDistance.overrideState = true;
             depthOfField.focusDistance.value = dofFocusDistance;
@@ -75,27 +76,31 @@ public class PlayerEffectsController : MonoBehaviour
     }
 
     /// <summary>
-    /// Call this from any enemy prefab on collision.
+    /// Called by enemies (e.g. FlyingBugEnemy)
     /// </summary>
     public void ApplyHitEffect(float slowAmount, float duration)
     {
-        StartCoroutine(ApplyHitEffectRoutine(slowAmount, duration));
+        // ✅ STOP previous effect (fixes your bug)
+        if (currentEffect != null)
+            StopCoroutine(currentEffect);
+
+        currentEffect = StartCoroutine(ApplyHitEffectRoutine(slowAmount, duration));
     }
 
     private IEnumerator ApplyHitEffectRoutine(float slowAmount, float duration)
     {
-        // 1. Slow player
+        // 1. Apply slow
         if (playerMove != null)
             playerMove.speedMultiplier = slowAmount;
 
-        // 2. Turn on PPv2 effects by setting weight to 1
+        // 2. Enable post-processing
         if (postProcessVolume != null)
             postProcessVolume.weight = 1f;
 
-        // 3. Keep for duration
+        // 3. Wait
         yield return new WaitForSeconds(duration);
 
-        // 4. Fade out weight smoothly using inspector-adjustable fadeDuration
+        // 4. Fade out effect
         if (postProcessVolume != null)
         {
             float t = 0f;
@@ -111,8 +116,10 @@ public class PlayerEffectsController : MonoBehaviour
             postProcessVolume.weight = 0f;
         }
 
-        // 5. Restore player speed
+        // 5. Restore speed
         if (playerMove != null)
             playerMove.speedMultiplier = 1f;
+
+        currentEffect = null; // ✅ IMPORTANT
     }
 }
