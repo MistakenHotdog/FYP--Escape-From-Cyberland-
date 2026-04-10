@@ -1,26 +1,30 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMove : MonoBehaviour
 {
+    public enum ControlMode { Joystick, Buttons }
+
+    [Header("Control Mode")]
+    public ControlMode controlMode = ControlMode.Joystick;
+
     [Header("Movement Settings")]
-    [SerializeField] private float walkSpeed = 5f;
-    [SerializeField] private float runSpeed = 10f;
-    [SerializeField] private float rotationSpeed = 10f;
-    [SerializeField] private float runThreshold = 0.9f;
+    public float walkSpeed = 5f;
+    public float runSpeed = 10f;
+    public float rotationSpeed = 10f;
+    public float runThreshold = 0.9f;
+
+    [Header("Effects")]
+    [Range(0f, 1f)]
+    public float speedMultiplier = 1f; // 🔥 FIXED (for your error)
 
     [Header("References")]
-    [SerializeField] private Joystick joystick;
-    [SerializeField] private Animator animator;
-
-    [Header("Temporary Effects")]
-    [Range(0f, 1f)]
-    public float speedMultiplier = 1f; // 1 = normal, <1 = slowed
+    public Joystick joystick;
+    public Animator animator;
 
     private Rigidbody rb;
     private Transform cam;
     private int speedHash;
-    private Vector3 moveDir;
 
     void Awake()
     {
@@ -33,50 +37,90 @@ public class PlayerMove : MonoBehaviour
                          RigidbodyConstraints.FreezeRotationZ;
     }
 
+    void Start()
+    {
+        ApplyMode(PlayerPrefs.GetInt("ControlMode", 0));
+    }
+
+    void OnEnable()
+    {
+        ControlSettings.OnControlChanged += ApplyMode;
+    }
+
+    void OnDisable()
+    {
+        ControlSettings.OnControlChanged -= ApplyMode;
+    }
+
+    void ApplyMode(int mode)
+    {
+        controlMode = (mode == 0) ? ControlMode.Joystick : ControlMode.Buttons;
+    }
+
     void FixedUpdate()
     {
-        float h = joystick.Horizontal;
-        float v = joystick.Vertical;
+        float h = 0f;
+        float v = 0f;
 
-        Vector2 joystickInput = new Vector2(h, v);
-        float inputMagnitude = Mathf.Clamp01(joystickInput.magnitude);
+        // 🎮 INPUT SYSTEM SWITCH
+        if (controlMode == ControlMode.Joystick)
+        {
+            if (joystick != null)
+            {
+                h = joystick.Horizontal;
+                v = joystick.Vertical;
+            }
+        }
+        else
+        {
+            h = ButtonInput.Horizontal;
+            v = ButtonInput.Vertical;
+        }
 
-        // Decide current speed (apply speed multiplier)
-        float currentSpeed = ((inputMagnitude >= runThreshold) ? runSpeed : walkSpeed) * speedMultiplier;
+        Vector2 input = new Vector2(h, v);
+        float magnitude = Mathf.Clamp01(input.magnitude);
 
-        // Stop if joystick is nearly idle
-        if (inputMagnitude < 0.1f)
+        // 🚫 Stop movement if no input
+        if (magnitude < 0.1f)
         {
             animator.SetFloat(speedHash, 0f);
-            animator.speed = 1f; // Reset animation speed
+            animator.speed = 1f;
             rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
             return;
         }
 
-        // Camera-relative movement
+        // 🏃 Speed calculation (WITH multiplier)
+        float baseSpeed = (magnitude >= runThreshold) ? runSpeed : walkSpeed;
+        float finalSpeed = baseSpeed * speedMultiplier;
+
+        // 🎥 Camera-relative movement
         Vector3 forward = cam.forward;
         Vector3 right = cam.right;
+
         forward.y = 0f;
         right.y = 0f;
+
         forward.Normalize();
         right.Normalize();
 
-        moveDir = (forward * v + right * h).normalized * currentSpeed;
+        Vector3 moveDir = (forward * v + right * h).normalized * finalSpeed;
 
-        // Apply movement
+        // 🚀 Apply movement
         rb.velocity = new Vector3(moveDir.x, rb.velocity.y, moveDir.z);
 
-        // Smooth rotation
+        // 🔄 Smooth rotation
         if (moveDir != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDir);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.fixedDeltaTime
+            );
         }
 
-        // Animation blend
+        // 🎭 Animation
         animator.SetFloat(speedHash, 1f);
-
-        // Adjust animation speed proportional to movement speed
-        animator.speed = currentSpeed / walkSpeed;
+        animator.speed = finalSpeed / walkSpeed;
     }
 }
