@@ -12,12 +12,12 @@ public class DronePatrol : MonoBehaviour
     public float reachDistance = 0.3f;
 
     [Header("Laser Points")]
-    public Transform[] laserPoints;   // replace 4 separate points with array
+    public Transform[] laserPoints;
     public float laserLength = 7f;
 
     [Header("Enemy Spawn Settings")]
-    public GameObject bugPrefab;     // Your flying bug enemy
-    public Transform spawnPoint;     // Where bug appears on drone
+    public GameObject bugPrefab;
+    public Transform spawnPoint;
     public float spawnCooldown = 5f;
 
     private float nextSpawnTime = 0f;
@@ -25,18 +25,42 @@ public class DronePatrol : MonoBehaviour
     private Transform targetPoint;
     private LineRenderer[] lasers;
 
+    private static Shader _cachedLaserShader;
+    private static Shader LaserShader
+    {
+        get
+        {
+            if (_cachedLaserShader == null)
+                _cachedLaserShader = Shader.Find("Unlit/Color");
+            return _cachedLaserShader;
+        }
+    }
+
     private void Start()
     {
+        if (pointA == null || pointB == null)
+        {
+            Debug.LogWarning($"[DronePatrol] {name}: Missing patrol points.");
+            enabled = false;
+            return;
+        }
+
         targetPoint = pointB;
 
-        // Setup lasers
+        if (laserPoints == null) laserPoints = new Transform[0];
+
         lasers = new LineRenderer[laserPoints.Length];
         for (int i = 0; i < laserPoints.Length; i++)
-            lasers[i] = CreateLaser(laserPoints[i]);
+        {
+            if (laserPoints[i] != null)
+                lasers[i] = CreateLaser(laserPoints[i]);
+        }
     }
 
     private void Update()
     {
+        if (targetPoint == null) return;
+
         Patrol();
         KeepUpright();
         UpdateLasers();
@@ -55,16 +79,22 @@ public class DronePatrol : MonoBehaviour
         lr.startWidth = 0.03f;
         lr.endWidth = 0.03f;
         lr.positionCount = 2;
-        lr.material = new Material(Shader.Find("Unlit/Color"));
-        lr.material.color = Color.red;
+        Shader shader = LaserShader;
+        if (shader != null)
+        {
+            lr.material = new Material(shader);
+            lr.material.color = Color.red;
+        }
 
         return lr;
     }
 
     void UpdateLasers()
     {
+        if (lasers == null) return;
         foreach (LineRenderer lr in lasers)
         {
+            if (lr == null) continue;
             lr.SetPosition(0, lr.transform.position);
             lr.SetPosition(1, lr.transform.position + Vector3.down * laserLength);
         }
@@ -74,10 +104,12 @@ public class DronePatrol : MonoBehaviour
 
     void DetectPlayerWithLaser()
     {
+        if (laserPoints == null) return;
         foreach (Transform p in laserPoints)
         {
-            RaycastHit hit;
+            if (p == null) continue;
 
+            RaycastHit hit;
             if (Physics.Raycast(p.position, Vector3.down, out hit, laserLength))
             {
                 if (hit.collider.CompareTag("Player"))
@@ -91,10 +123,14 @@ public class DronePatrol : MonoBehaviour
     void TrySpawnBug()
     {
         if (Time.time < nextSpawnTime) return;
+        if (bugPrefab == null || spawnPoint == null)
+        {
+            Debug.LogWarning($"[DronePatrol] {name}: Missing bugPrefab or spawnPoint.");
+            return;
+        }
 
         Instantiate(bugPrefab, spawnPoint.position, Quaternion.identity);
-
-        nextSpawnTime = Time.time + spawnCooldown; // cooldown
+        nextSpawnTime = Time.time + spawnCooldown;
     }
 
     // ---------------- Movement ----------------

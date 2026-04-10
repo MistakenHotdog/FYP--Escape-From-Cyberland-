@@ -8,33 +8,31 @@ public class EnemyAI : MonoBehaviour
     public Transform patrolPointB;
     public string playerTag = "Player";
 
-    // Movement speeds
+    [Header("Movement")]
     public float walkSpeed = 2f;
     public float runSpeed = 4.5f;
 
-    // Player detection and shooting
-    public float detectionRange = 15f;
+    [Header("Detection")]
+    public float normalDetectionRange = 15f;
+    public float alertDetectionRange = 30f;
     public float shootRange = 10f;
     public float stoppingDistance = 9f;
+
+    [Header("Combat")]
     public float fireRate = 0.6f;
     public float turnSpeed = 6f;
-
     public Transform muzzle;
     public float shootDamage = 10f;
     public LayerMask shootLayerMask = ~0;
 
-    // Patrol timing
+    [Header("Patrol")]
     public float idleTimeAtPatrolPoint = 4f;
-
-    // Animator parameter names
-    private const string ANIM_SPEED = "Speed";
-    private const string ANIM_IS_SHOOTING = "IsShooting";
-    private const string ANIM_TURN_TRIGGER = "TurnTrigger";
-    private const string ANIM_IDLE_TRIGGER = "IdleTrigger";
 
     private NavMeshAgent agent;
     private Animator animator;
     private Transform player;
+
+    private bool isAlerted = false;
 
     private enum AIState { Patrol, Approach, Shooting }
     private AIState state = AIState.Patrol;
@@ -43,6 +41,12 @@ public class EnemyAI : MonoBehaviour
     private bool patrollingForward = true;
     private float lastFireTime = 0f;
     private bool isWaitingAtPoint = false;
+    private Coroutine patrolCoroutine;
+
+    private const string ANIM_SPEED = "Speed";
+    private const string ANIM_IS_SHOOTING = "IsShooting";
+    private const string ANIM_TURN_TRIGGER = "TurnTrigger";
+    private const string ANIM_IDLE_TRIGGER = "IdleTrigger";
 
     void Awake()
     {
@@ -52,9 +56,9 @@ public class EnemyAI : MonoBehaviour
 
     void Start()
     {
-        if (patrolPointA == null || patrolPointB == null)
+        if (agent == null || animator == null)
         {
-            Debug.LogError("EnemyAI: Missing patrol points.");
+            Debug.LogWarning($"[EnemyAI] {name}: Missing NavMeshAgent or Animator.");
             enabled = false;
             return;
         }
@@ -64,20 +68,24 @@ public class EnemyAI : MonoBehaviour
 
         currentPatrolTarget = patrolPointA;
 
-        agent.speed = walkSpeed;
-        agent.stoppingDistance = 0f;
-        agent.SetDestination(currentPatrolTarget.position);
+        if (currentPatrolTarget != null)
+        {
+            agent.speed = walkSpeed;
+            agent.SetDestination(currentPatrolTarget.position);
+        }
     }
 
     void Update()
     {
-        if (player == null) return;
+        if (player == null || agent == null || animator == null) return;
 
         float distToPlayer = Vector3.Distance(transform.position, player.position);
 
-        if (distToPlayer <= detectionRange)
+        float currentDetectionRange = isAlerted ? alertDetectionRange : normalDetectionRange;
+
+        if (distToPlayer <= currentDetectionRange && HasLineOfSightToPlayer())
         {
-            if (distToPlayer > shootRange * 1.1f)
+            if (distToPlayer > shootRange)
                 state = AIState.Approach;
             else
                 state = AIState.Shooting;
@@ -105,20 +113,53 @@ public class EnemyAI : MonoBehaviour
         animator.SetFloat(ANIM_SPEED, agent.velocity.magnitude);
     }
 
-    // PATROL
+    // ---------------- LINE OF SIGHT ----------------
+    bool HasLineOfSightToPlayer()
+    {
+        Vector3 origin = transform.position + Vector3.up * 1.5f;
+        Vector3 target = player.position + Vector3.up;
+        Vector3 dir = target - origin;
+        if (dir.sqrMagnitude < 0.01f) return true;
+        // Check if any solid object blocks the view between enemy and player
+        if (Physics.Raycast(origin, dir.normalized, out RaycastHit hit, dir.magnitude))
+        {
+            // Hit something — if it's the player, we can see them; if it's a wall, blocked
+            return hit.collider.CompareTag(playerTag);
+        }
+        // Nothing solid between us and the player — clear line of sight
+        return true;
+    }
+
+    // ---------------- ALERT SYSTEM ----------------
+    public void SetAlert(bool alert)
+    {
+        isAlerted = alert;
+
+        if (agent == null) return;
+
+        if (alert)
+        {
+            agent.speed = runSpeed;
+        }
+        else
+        {
+            agent.speed = walkSpeed;
+        }
+    }
+
+    // ---------------- PATROL ----------------
     void HandlePatrol()
     {
         animator.SetBool(ANIM_IS_SHOOTING, false);
-        agent.speed = walkSpeed;
         agent.isStopped = false;
         agent.stoppingDistance = 0f;
+        agent.speed = isAlerted ? runSpeed : walkSpeed;
 
         if (isWaitingAtPoint) return;
 
-        if (!agent.pathPending &&
-            agent.remainingDistance <= agent.stoppingDistance + 0.1f)
+        if (!agent.pathPending && agent.remainingDistance <= 0.1f)
         {
-            StartCoroutine(PatrolIdleSequence());
+            patrolCoroutine = StartCoroutine(PatrolIdleSequence());
         }
     }
 
@@ -127,13 +168,10 @@ public class EnemyAI : MonoBehaviour
         isWaitingAtPoint = true;
 
         agent.isStopped = true;
-
-        // Go to idle animation
         animator.SetTrigger(ANIM_IDLE_TRIGGER);
 
         yield return new WaitForSeconds(idleTimeAtPatrolPoint);
 
-        // Turn animation before walking again
         animator.SetTrigger(ANIM_TURN_TRIGGER);
 
         yield return new WaitForSeconds(0.5f);
@@ -142,44 +180,44 @@ public class EnemyAI : MonoBehaviour
         currentPatrolTarget = patrollingForward ? patrolPointA : patrolPointB;
 
         agent.isStopped = false;
-        agent.SetDestination(currentPatrolTarget.position);
+        if (currentPatrolTarget != null)
+            agent.SetDestination(currentPatrolTarget.position);
 
         isWaitingAtPoint = false;
+        patrolCoroutine = null;
     }
 
-    // APPROACH PLAYER
+    // ---------------- APPROACH ----------------
     void HandleApproach()
     {
+        CancelPatrolIfRunning();
+
         animator.SetBool(ANIM_IS_SHOOTING, false);
-        agent.speed = runSpeed;
         agent.isStopped = false;
         agent.stoppingDistance = stoppingDistance;
+        agent.speed = runSpeed;
 
         Vector3 dir = (player.position - transform.position).normalized;
         Vector3 targetPos = player.position - dir * (shootRange * 0.9f);
 
         agent.SetDestination(targetPos);
-
-        float angle = Vector3.Angle(transform.forward, player.position - transform.position);
-        if (angle > 60f)
-            animator.SetTrigger(ANIM_TURN_TRIGGER);
     }
 
-    // SHOOTING
+    // ---------------- SHOOTING ----------------
     void HandleShooting()
     {
-        agent.isStopped = true;
-        agent.speed = 0f;
+        CancelPatrolIfRunning();
 
+        agent.isStopped = true;
         animator.SetBool(ANIM_IS_SHOOTING, true);
 
         Vector3 lookDir = player.position - transform.position;
         lookDir.y = 0f;
 
-        if (lookDir.sqrMagnitude > 0.001f)
+        if (lookDir != Vector3.zero)
         {
-            Quaternion targetRot = Quaternion.LookRotation(lookDir);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * turnSpeed);
+            Quaternion rot = Quaternion.LookRotation(lookDir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * turnSpeed);
         }
 
         if (Time.time >= lastFireTime + 1f / fireRate)
@@ -189,28 +227,31 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    private void CancelPatrolIfRunning()
+    {
+        if (patrolCoroutine != null)
+        {
+            StopCoroutine(patrolCoroutine);
+            patrolCoroutine = null;
+            isWaitingAtPoint = false;
+        }
+    }
+
     IEnumerator FireSingleShot()
     {
         yield return null;
 
         Vector3 origin = muzzle ? muzzle.position : transform.position + Vector3.up * 1.5f;
-        Vector3 dir = (player.position + Vector3.up * 1f) - origin;
+        Vector3 dir = (player.position + Vector3.up) - origin;
 
-        RaycastHit hit;
-        if (Physics.Raycast(origin, dir.normalized, out hit, shootRange, shootLayerMask))
+        if (Physics.Raycast(origin, dir.normalized, out RaycastHit hit, shootRange, shootLayerMask))
         {
-            // Replace with your health script
-            // Example:
-            // hit.collider.GetComponent<Health>()?.TakeDamage(shootDamage);
+            if (hit.collider.CompareTag(playerTag))
+            {
+                PlayerHealth ph = hit.collider.GetComponent<PlayerHealth>();
+                if (ph != null)
+                    ph.TakeDamage(shootDamage);
+            }
         }
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRange);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, shootRange);
     }
 }

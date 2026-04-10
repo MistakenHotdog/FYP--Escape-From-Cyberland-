@@ -7,7 +7,7 @@ public class LoadingScreen : MonoBehaviour
 {
     [Header("Scene Settings")]
     [Tooltip("The name of the scene to load after this screen.")]
-    public string sceneToLoad = "GameScene1";
+    public string sceneToLoad = SceneNames.GameScene1;
 
     [Header("UI References")]
     public Slider progressBar;      // Slider UI element
@@ -35,8 +35,8 @@ public class LoadingScreen : MonoBehaviour
         while (!operation.isDone)
         {
             float progress = Mathf.Clamp01(operation.progress / 0.9f);
-            progressBar.value = progress;
-            loadingText.text = " " + (progress * 100f).ToString("F0") + "%";
+            if (progressBar != null) progressBar.value = progress;
+            if (loadingText != null) loadingText.text = (progress * 100f).ToString("F0") + "%";
 
             // When ready (almost done)
             if (progress >= 1f)
@@ -52,6 +52,7 @@ public class LoadingScreen : MonoBehaviour
 
     IEnumerator Fade(float start, float end, float duration)
     {
+        if (fadePanel == null) yield break;
         float elapsed = 0f;
         fadePanel.alpha = start;
 

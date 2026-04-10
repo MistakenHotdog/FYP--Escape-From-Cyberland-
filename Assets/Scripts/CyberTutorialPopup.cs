@@ -1,57 +1,88 @@
 using UnityEngine;
 using System.Collections;
 using TMPro;
-using UnityEngine.UI; // For CanvasGroup
+using UnityEngine.UI;
 
 public class CyberTutorialPopup : MonoBehaviour
 {
-    public GameObject tutorialPanel;         // Panel
-    public TextMeshProUGUI tutorialText;     // TMP Text
-    public float typeSpeed = 0.03f;          // Typing speed
-    public float displayTimeAfterTyping = 1f;// Extra time panel stays after typing
-    public float fadeDuration = 0.5f;        // Fade in/out time
+    public GameObject tutorialPanel;
+    public TextMeshProUGUI tutorialText;
+    public float typeSpeed = 0.03f;
+    public float displayTimeAfterTyping = 1f;
+    public float fadeDuration = 0.5f;
 
     private string fullText =
         "Cyber Threat Guide\n" +
-        "• Avoid drone lasers.\n" +
-        "• Stay out of camera vision.\n" +
-        "• Watch for phishing traps.\n" +
-        "• Enemies attack on sight.\n" +
-        "• Virus bugs slow you down.";
+        "\u25aa Avoid drone lasers.\n" +
+        "\u25aa Stay out of camera vision.\n" +
+        "\u25aa Watch for phishing traps.\n" +
+        "\u25aa Enemies attack on sight.\n" +
+        "\u25aa Virus bugs slow you down.";
 
     private CanvasGroup canvasGroup;
+    private bool skipRequested = false;
+    private float skipEnabledTime;
 
     void Awake()
     {
-        // Add CanvasGroup if not present
+        if (tutorialPanel == null)
+        {
+            Debug.LogWarning("[CyberTutorialPopup] Missing tutorialPanel.");
+            return;
+        }
+
         canvasGroup = tutorialPanel.GetComponent<CanvasGroup>();
         if (canvasGroup == null)
             canvasGroup = tutorialPanel.AddComponent<CanvasGroup>();
 
-        canvasGroup.alpha = 0f; // start invisible
-        tutorialPanel.SetActive(true); // needed for CanvasGroup to work
+        canvasGroup.alpha = 0f;
+        tutorialPanel.SetActive(true);
     }
 
     void Start()
     {
+        if (tutorialPanel == null || tutorialText == null)
+        {
+            Debug.LogWarning("[CyberTutorialPopup] Missing tutorialPanel or tutorialText.");
+            return;
+        }
         StartCoroutine(ShowTutorial());
+    }
+
+    void Update()
+    {
+        if (!skipRequested && Time.time > skipEnabledTime)
+        {
+            if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Escape))
+                skipRequested = true;
+        }
     }
 
     IEnumerator ShowTutorial()
     {
+        skipEnabledTime = Time.time + 0.5f;
+
         // Fade In
         yield return StartCoroutine(FadeCanvas(0f, 1f));
 
-        // Typewriter effect
-        tutorialText.text = "";
-        foreach (char c in fullText)
+        // Typewriter effect using maxVisibleCharacters
+        tutorialText.text = fullText;
+        tutorialText.maxVisibleCharacters = 0;
+        for (int i = 0; i <= fullText.Length; i++)
         {
-            tutorialText.text += c;
+            if (skipRequested) break;
+            tutorialText.maxVisibleCharacters = i;
             yield return new WaitForSeconds(typeSpeed);
         }
+        tutorialText.maxVisibleCharacters = fullText.Length;
 
-        // Wait extra time after typing
-        yield return new WaitForSeconds(displayTimeAfterTyping);
+        // Wait extra time after typing (skippable)
+        float waited = 0f;
+        while (waited < displayTimeAfterTyping && !skipRequested)
+        {
+            waited += Time.deltaTime;
+            yield return null;
+        }
 
         // Fade Out
         yield return StartCoroutine(FadeCanvas(1f, 0f));
@@ -64,10 +95,12 @@ public class CyberTutorialPopup : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < fadeDuration)
         {
-            canvasGroup.alpha = Mathf.Lerp(from, to, elapsed / fadeDuration);
+            if (canvasGroup != null)
+                canvasGroup.alpha = Mathf.Lerp(from, to, elapsed / fadeDuration);
             elapsed += Time.deltaTime;
             yield return null;
         }
-        canvasGroup.alpha = to;
+        if (canvasGroup != null)
+            canvasGroup.alpha = to;
     }
 }

@@ -129,24 +129,14 @@ public class TriggerShowButton : MonoBehaviour
         }
         else
         {
-            // Try to auto-find a CutsceneController component in the scene
-            var found = FindObjectOfType<MonoBehaviour>();
+            var found = FindObjectOfType<CutsceneController>();
             if (found != null)
             {
-                var type = found.GetType();
-                var method = type.GetMethod("PlayCutscene");
-                if (method != null)
-                {
-                    method.Invoke(found, null);
-                }
-                else
-                {
-                    Debug.LogWarning("[TriggerShowButton] Could not find a CutsceneController with PlayCutscene(). Please assign cutsceneControllerScript.");
-                }
+                found.PlayCutscene();
             }
             else
             {
-                Debug.LogWarning("[TriggerShowButton] No script assigned and none auto-found.");
+                Debug.LogWarning("[TriggerShowButton] No CutsceneController found. Assign cutsceneControllerScript.");
             }
         }
 

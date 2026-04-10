@@ -47,6 +47,7 @@ public class StealthDetection : MonoBehaviour
         Vector3 playerPos = transform.position;
 
         // 1. Drones
+        if (drones == null) drones = new Transform[0];
         foreach (Transform drone in drones)
         {
             if (drone == null) continue;
@@ -59,6 +60,7 @@ public class StealthDetection : MonoBehaviour
         }
 
         // 2. Bots
+        if (phishingBots == null) phishingBots = new Transform[0];
         foreach (Transform bot in phishingBots)
         {
             if (bot == null) continue;
@@ -71,6 +73,7 @@ public class StealthDetection : MonoBehaviour
         }
 
         // 3. Cameras
+        if (cameras == null) cameras = new SurveillanceCamera[0];
         foreach (SurveillanceCamera cam in cameras)
         {
             if (cam == null) continue;
@@ -91,6 +94,8 @@ public class StealthDetection : MonoBehaviour
     bool HasLineOfSight(Vector3 from, Vector3 to)
     {
         Vector3 dir = to - from;
+
+        if (dir.sqrMagnitude < 0.001f) return true;
 
         if (Physics.Raycast(from, dir.normalized, out RaycastHit hit, dir.magnitude, obstructionMask))
             return false;

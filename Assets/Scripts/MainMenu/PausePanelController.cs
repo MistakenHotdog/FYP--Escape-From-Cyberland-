@@ -9,21 +9,20 @@ public class PausePanelController : MonoBehaviour
     // Called by the on-screen Pause button
     public void PauseGame()
     {
-        Time.timeScale = 0f;          // Freeze gameplay
-        pausePanel.SetActive(true);   // Show panel
+        Time.timeScale = 0f;
+        if (pausePanel != null) pausePanel.SetActive(true);
     }
 
-    // Called by Resume button
     public void ResumeGame()
     {
-        pausePanel.SetActive(false);
-        Time.timeScale = 1f;          // Unfreeze gameplay
+        if (pausePanel != null) pausePanel.SetActive(false);
+        Time.timeScale = 1f;
     }
 
     // Called by Exit button
     public void ExitToMainMenu()
     {
         Time.timeScale = 1f;          // Always unpause before switching scene
-        SceneManager.LoadScene("MainMenu");  // Change to your menu scene name
+        SceneManager.LoadScene(SceneNames.MainMenu);
     }
 }
