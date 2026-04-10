@@ -13526,6 +13526,7 @@ MonoBehaviour:
   isOn: 1
   dangerSound: {fileID: 8300000, guid: 34af45bbd221eb74da9b65649a9cc549, type: 3}
   audioSource: {fileID: 86854698}
+  contactDamage: 15
 --- !u!4 &1188753714
 Transform:
   m_ObjectHideFlags: 0
@@ -13565,6 +13566,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   laser: {fileID: 1188753713}
   interval: 3
+  randomVariation: 0
 --- !u!54 &1188753716
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -16853,6 +16855,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   laser: {fileID: 1578930874}
   interval: 1.5
+  randomVariation: 0
 --- !u!114 &1578930874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16868,6 +16871,7 @@ MonoBehaviour:
   isOn: 1
   dangerSound: {fileID: 8300000, guid: 34af45bbd221eb74da9b65649a9cc549, type: 3}
   audioSource: {fileID: 0}
+  contactDamage: 15
 --- !u!4 &1578930875
 Transform:
   m_ObjectHideFlags: 0
@@ -23196,6 +23200,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   laser: {fileID: 1188753713}
   interval: 3
+  randomVariation: 0
 --- !u!4 &1739309566
 Transform:
   m_ObjectHideFlags: 0
