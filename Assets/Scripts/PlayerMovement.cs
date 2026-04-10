@@ -30,7 +30,8 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Read joystick input
+        if (joystick == null || rb == null || animator == null) return;
+
         float horizontal = joystick.Horizontal;
         float vertical = joystick.Vertical;
 

@@ -7,7 +7,7 @@ public class SteamBurst : MonoBehaviour
 
     void Start()
     {
-        if (steamFX  != null)
+        if (steamFX != null || steamFX2 != null)
         {
             InvokeRepeating("Burst", 1f, 4f);
         }
@@ -15,14 +15,19 @@ public class SteamBurst : MonoBehaviour
 
     void Burst()
     {
-        steamFX.Play();
-        steamFX2.Play();
+        if (steamFX != null) steamFX.Play();
+        if (steamFX2 != null) steamFX2.Play();
         Invoke("StopSteam", 2f);
     }
 
     void StopSteam()
     {
-        steamFX.Stop();
-        steamFX2.Stop();
+        if (steamFX != null) steamFX.Stop();
+        if (steamFX2 != null) steamFX2.Stop();
+    }
+
+    void OnDestroy()
+    {
+        CancelInvoke();
     }
 }

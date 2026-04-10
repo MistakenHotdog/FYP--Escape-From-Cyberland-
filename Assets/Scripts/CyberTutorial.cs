@@ -1,12 +1,12 @@
-﻿using System.Collections;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class CyberTutorial : MonoBehaviour
 {
-    public CanvasGroup panelCanvas;      // CanvasGroup for fade
-    public TMP_Text tutorialText;        // TMP Text object
+    public CanvasGroup panelCanvas;
+    public TMP_Text tutorialText;
 
     [TextArea]
     public string fullText =
@@ -15,16 +15,35 @@ public class CyberTutorial : MonoBehaviour
         "[#] Hide behind objects.\n" +
         "[*] Use cyber tools wisely to disable enemies.";
 
-    public float typingSpeed = 0.05f;    // Time between letters
-    public float displayTime = 3f;       // Time panel stays after typing
+    public float typingSpeed = 0.05f;
+    public float displayTime = 3f;
+
+    private bool skipRequested = false;
+    private float skipEnabledTime;
 
     void Start()
     {
+        if (panelCanvas == null || tutorialText == null)
+        {
+            Debug.LogWarning("[CyberTutorial] Missing panelCanvas or tutorialText.");
+            return;
+        }
         StartCoroutine(ShowTutorial());
+    }
+
+    void Update()
+    {
+        if (!skipRequested && Time.time > skipEnabledTime)
+        {
+            if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Escape))
+                skipRequested = true;
+        }
     }
 
     IEnumerator ShowTutorial()
     {
+        skipEnabledTime = Time.time + 0.5f;
+
         // Fade in
         panelCanvas.alpha = 0f;
         panelCanvas.gameObject.SetActive(true);
@@ -36,16 +55,24 @@ public class CyberTutorial : MonoBehaviour
         }
         panelCanvas.alpha = 1f;
 
-        // Typing effect
-        tutorialText.text = "";
-        foreach (char c in fullText)
+        // Typing effect using maxVisibleCharacters (no string allocation)
+        tutorialText.text = fullText;
+        tutorialText.maxVisibleCharacters = 0;
+        for (int i = 0; i <= fullText.Length; i++)
         {
-            tutorialText.text += c;
+            if (skipRequested) break;
+            tutorialText.maxVisibleCharacters = i;
             yield return new WaitForSeconds(typingSpeed);
         }
+        tutorialText.maxVisibleCharacters = fullText.Length;
 
-        // Wait for displayTime
-        yield return new WaitForSeconds(displayTime);
+        // Wait for displayTime (skippable)
+        float waited = 0f;
+        while (waited < displayTime && !skipRequested)
+        {
+            waited += Time.deltaTime;
+            yield return null;
+        }
 
         // Fade out
         float fadeOutTime = 0.5f;

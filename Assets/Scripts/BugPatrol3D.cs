@@ -16,13 +16,13 @@ public class BugPatrol3D : MonoBehaviour
     {
         fixedY = transform.position.y;
 
-        if (patrolPoints.Length != 2)
+        if (patrolPoints == null || patrolPoints.Length != 2)
             Debug.LogWarning("BugPatrol3D needs exactly 2 patrol points!");
     }
 
     void Update()
     {
-        if (patrolPoints.Length < 2) return;
+        if (patrolPoints == null || patrolPoints.Length < 2) return;
 
         // If currently rotating 180°
         if (isRotating)

@@ -4,31 +4,66 @@ using UnityEngine.UI;
 
 public class TerminationUI : MonoBehaviour
 {
-    public GameObject uiPanel;      // The main panel with text & buttons
-    public Text resultText;         // Legacy text (Game Over / Victory)
-    private bool isActive = false;
+    public GameObject uiPanel;
+    public Text resultText;
+
+    private bool isShowing = false;
 
     void Start()
     {
-        uiPanel.SetActive(false);
+        // Don't hide the panel if ShowGameOver/ShowVictory was already called.
+        // This handles the case where the TerminationUI starts inactive in the scene
+        // and Start() runs for the first time AFTER ShowGameOver activated it.
+        if (!isShowing && uiPanel != null)
+            uiPanel.SetActive(false);
     }
 
     public void ShowGameOver()
     {
-        resultText.text = "GAME OVER";
-        resultText.color = Color.red;
-        uiPanel.SetActive(true);
-        Time.timeScale = 0f; // Pause the game
-        isActive = true;
+        isShowing = true;
+
+        if (resultText != null)
+        {
+            resultText.text = "GAME OVER";
+            resultText.color = Color.red;
+        }
+
+        if (uiPanel != null)
+        {
+            uiPanel.SetActive(true);
+
+            Canvas canvas = uiPanel.GetComponent<Canvas>();
+            if (canvas == null)
+                canvas = uiPanel.GetComponentInParent<Canvas>();
+            if (canvas != null)
+                canvas.sortingOrder = 999;
+        }
+
+        Time.timeScale = 0f;
     }
 
     public void ShowVictory()
     {
-        resultText.text = "VICTORY!";
-        resultText.color = Color.green;
-        uiPanel.SetActive(true);
+        isShowing = true;
+
+        if (resultText != null)
+        {
+            resultText.text = "VICTORY!";
+            resultText.color = Color.green;
+        }
+
+        if (uiPanel != null)
+        {
+            uiPanel.SetActive(true);
+
+            Canvas canvas = uiPanel.GetComponent<Canvas>();
+            if (canvas == null)
+                canvas = uiPanel.GetComponentInParent<Canvas>();
+            if (canvas != null)
+                canvas.sortingOrder = 999;
+        }
+
         Time.timeScale = 0f;
-        isActive = true;
     }
 
     public void RestartGame()
@@ -40,7 +75,7 @@ public class TerminationUI : MonoBehaviour
     public void ReturnToMenu()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene(SceneNames.MainMenu);
     }
 
     public void QuitGame()

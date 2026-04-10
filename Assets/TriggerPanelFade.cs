@@ -8,8 +8,8 @@ public class TriggerPanelPopup : MonoBehaviour
 {
     public GameObject panel;
     public float fadeDuration = 1f;
-    public string continueScene = "LoadingScene";
-    public string mainMenuScene = "MainMenu";
+    public string continueScene = SceneNames.LoadingScene;
+    public string mainMenuScene = SceneNames.MainMenu;
 
     private bool hasTriggered = false;
     private Graphic[] graphics;   // All UI elements on the panel

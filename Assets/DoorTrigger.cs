@@ -6,7 +6,7 @@ public class DoorTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && doorAnimator != null)
         {
             doorAnimator.SetTrigger("Open");
         }
@@ -14,7 +14,7 @@ public class DoorTrigger : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && doorAnimator != null)
         {
             doorAnimator.SetTrigger("Close");
         }

@@ -42,11 +42,24 @@ public class SurveillanceCamera : MonoBehaviour
     private float focusTimer = 0f;
     private Coroutine alertCoroutine;
     private int rotationDirection = 1;
+    private AlarmSystem cachedAlarm;
+
+    private static Shader _cachedLaserShader;
+    private static Shader CameraLaserShader
+    {
+        get
+        {
+            if (_cachedLaserShader == null)
+                _cachedLaserShader = Shader.Find("Sprites/Default");
+            return _cachedLaserShader;
+        }
+    }
 
     private void Awake()
     {
         SetupLaser();
         SetupAudio();
+        cachedAlarm = FindObjectOfType<AlarmSystem>();
 
         if (laserOrigin == null)
         {
@@ -95,7 +108,8 @@ public class SurveillanceCamera : MonoBehaviour
 
         laserLine.startWidth = laserWidth;
         laserLine.endWidth = laserWidth;
-        laserLine.material = new Material(Shader.Find("Sprites/Default"));
+        Shader shader = CameraLaserShader;
+        laserLine.material = shader != null ? new Material(shader) : new Material(Shader.Find("Unlit/Color"));
         laserLine.startColor = laserColor;
         laserLine.endColor = laserColor;
         laserLine.positionCount = 2;
@@ -214,12 +228,8 @@ public class SurveillanceCamera : MonoBehaviour
 
         isInAlertMode = true;
 
-        // 🚨 TRIGGER GLOBAL ALARM
-        AlarmSystem alarm = FindObjectOfType<AlarmSystem>();
-        if (alarm != null)
-        {
-            alarm.TriggerAlarm();
-        }
+        if (cachedAlarm != null)
+            cachedAlarm.TriggerAlarm();
 
         if (audioSource && detectionSound)
             audioSource.PlayOneShot(detectionSound);

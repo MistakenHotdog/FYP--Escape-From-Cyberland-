@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 public class AlarmSystem : MonoBehaviour
@@ -10,6 +10,12 @@ public class AlarmSystem : MonoBehaviour
     public AudioClip alarmClip;
 
     private bool isAlarmActive = false;
+    private EnemyAI[] cachedEnemies;
+
+    void Start()
+    {
+        cachedEnemies = FindObjectsOfType<EnemyAI>();
+    }
 
     public void TriggerAlarm()
     {
@@ -18,13 +24,23 @@ public class AlarmSystem : MonoBehaviour
         StartCoroutine(AlarmRoutine());
     }
 
+    public void StopAlarm()
+    {
+        StopAllCoroutines();
+        if (alarmAudioSource != null)
+            alarmAudioSource.Stop();
+        if (cachedEnemies != null)
+        {
+            foreach (EnemyAI e in cachedEnemies)
+                if (e != null) e.SetAlert(false);
+        }
+        isAlarmActive = false;
+    }
+
     IEnumerator AlarmRoutine()
     {
         isAlarmActive = true;
 
-        Debug.Log("🚨 ALARM TRIGGERED");
-
-        // 🔊 PLAY SOUND
         if (alarmAudioSource != null && alarmClip != null)
         {
             alarmAudioSource.loop = true;
@@ -32,30 +48,22 @@ public class AlarmSystem : MonoBehaviour
             alarmAudioSource.Play();
         }
 
-        // Alert enemies
-        EnemyAI[] enemies = FindObjectsOfType<EnemyAI>();
-        foreach (EnemyAI e in enemies)
+        if (cachedEnemies != null)
         {
-            if (e != null)
-                e.SetAlert(true);
+            foreach (EnemyAI e in cachedEnemies)
+                if (e != null) e.SetAlert(true);
         }
 
-        yield return new WaitForSeconds(alarmDuration);
+        yield return new WaitForSecondsRealtime(alarmDuration);
 
-        // Stop alarm
-        foreach (EnemyAI e in enemies)
+        if (cachedEnemies != null)
         {
-            if (e != null)
-                e.SetAlert(false);
+            foreach (EnemyAI e in cachedEnemies)
+                if (e != null) e.SetAlert(false);
         }
 
-        // 🔇 STOP SOUND
         if (alarmAudioSource != null)
-        {
             alarmAudioSource.Stop();
-        }
-
-        Debug.Log("✅ Alarm Ended");
 
         isAlarmActive = false;
     }

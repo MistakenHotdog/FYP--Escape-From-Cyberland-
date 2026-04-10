@@ -11,11 +11,13 @@ public class HackNodeUI : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     void Start()
     {
         manager = FindObjectOfType<HackWireManager>();
+        if (manager == null)
+            Debug.LogWarning($"[HackNodeUI] {name}: No HackWireManager found in scene.");
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (isStartNode)
+        if (isStartNode && manager != null)
         {
             manager.StartConnection(this);
         }
@@ -23,7 +25,7 @@ public class HackNodeUI : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (!isStartNode)
+        if (!isStartNode && manager != null)
         {
             manager.EndConnection(this);
         }

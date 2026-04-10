@@ -22,7 +22,7 @@ public class ControlUIManager : MonoBehaviour
 
     void Apply(int mode)
     {
-        joystickUI.SetActive(mode == 0);
-        buttonUI.SetActive(mode == 1);
+        if (joystickUI != null) joystickUI.SetActive(mode == 0);
+        if (buttonUI != null) buttonUI.SetActive(mode == 1);
     }
 }

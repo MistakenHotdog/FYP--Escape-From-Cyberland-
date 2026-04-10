@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class DoorwayLaser : MonoBehaviour
 {
@@ -6,27 +6,42 @@ public class DoorwayLaser : MonoBehaviour
     public AudioClip dangerSound;
     public AudioSource audioSource;
 
+    [Header("Damage")]
+    public float contactDamage = 15f;
+
+    private AlarmSystem cachedAlarm;
+    private Renderer[] childRenderers;
+    private Collider[] childColliders;
+
     void Awake()
     {
-        // Ensure parent has AudioSource
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
 
         audioSource.playOnAwake = false;
-        audioSource.spatialBlend = 1f; // 3D sound
+        audioSource.spatialBlend = 1f;
+
+        childRenderers = GetComponentsInChildren<Renderer>();
+        childColliders = GetComponentsInChildren<Collider>();
+    }
+
+    void Start()
+    {
+        cachedAlarm = FindObjectOfType<AlarmSystem>();
     }
 
     public void ToggleLaser()
     {
         isOn = !isOn;
 
-        // Enable/disable all child cube renderers and colliders
-        foreach (Renderer r in GetComponentsInChildren<Renderer>())
-            r.enabled = isOn;
+        if (childRenderers != null)
+            foreach (Renderer r in childRenderers)
+                if (r != null) r.enabled = isOn;
 
-        foreach (Collider c in GetComponentsInChildren<Collider>())
-            c.enabled = isOn;
+        if (childColliders != null)
+            foreach (Collider c in childColliders)
+                if (c != null) c.enabled = isOn;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -35,13 +50,27 @@ public class DoorwayLaser : MonoBehaviour
 
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player hit by doorway laser!");
+            if (cachedAlarm != null)
+                cachedAlarm.TriggerAlarm();
 
-            // 🚨 TRIGGER ALARM
-            FindObjectOfType<AlarmSystem>()?.TriggerAlarm();
+            PlayerHealth health = other.GetComponent<PlayerHealth>();
+            if (health != null)
+                health.TakeDamage(contactDamage);
 
             if (audioSource != null && dangerSound != null)
                 audioSource.PlayOneShot(dangerSound);
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (!isOn) return;
+
+        if (other.CompareTag("Player"))
+        {
+            PlayerHealth health = other.GetComponent<PlayerHealth>();
+            if (health != null)
+                health.TakeDamage(contactDamage * Time.deltaTime);
         }
     }
 }

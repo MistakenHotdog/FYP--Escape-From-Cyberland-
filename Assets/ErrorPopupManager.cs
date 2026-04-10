@@ -28,6 +28,11 @@ public class ErrorPopupManager : MonoBehaviour
 
     void SpawnPopups()
     {
+        if (popupCanvas == null || popupPrefab == null)
+        {
+            Debug.LogWarning("[ErrorPopupManager] Missing popupCanvas or popupPrefab.");
+            return;
+        }
         RectTransform canvasRect = popupCanvas.GetComponent<RectTransform>();
 
         for (int i = 0; i < popupCount; i++)

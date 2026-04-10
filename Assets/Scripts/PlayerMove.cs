@@ -29,8 +29,12 @@ public class PlayerMove : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        cam = Camera.main.transform;
         speedHash = Animator.StringToHash("Speed");
+
+        if (Camera.main != null)
+            cam = Camera.main.transform;
+        else
+            Debug.LogWarning("[PlayerMove] No MainCamera found.");
 
         rb.constraints = RigidbodyConstraints.FreezeRotationX |
                          RigidbodyConstraints.FreezeRotationY |
@@ -59,6 +63,8 @@ public class PlayerMove : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (cam == null || animator == null) return;
+
         float h = 0f;
         float v = 0f;
 

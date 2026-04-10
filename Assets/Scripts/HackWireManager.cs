@@ -21,13 +21,15 @@ public class HackWireManager : MonoBehaviour
     public int maxAttempts = 2;
     private int attempts = 0;
 
-    // Player reference (disable movement instead of pausing time)
     private MonoBehaviour playerController;
+    private AlarmSystem cachedAlarm;
+    private SurveillanceCamera[] cachedCameras;
 
     void Start()
     {
-        // Find your player movement script here
         playerController = FindObjectOfType<PlayerMove>();
+        cachedAlarm = FindObjectOfType<AlarmSystem>();
+        cachedCameras = FindObjectsOfType<SurveillanceCamera>();
     }
 
     void Update()
@@ -107,11 +109,11 @@ public class HackWireManager : MonoBehaviour
 
     void Success()
     {
-        Debug.Log("✅ HACK SUCCESS");
-
-        var cams = FindObjectsOfType<SurveillanceCamera>();
-        foreach (var cam in cams)
-            cam.DisableCamera();
+        if (cachedCameras != null)
+        {
+            foreach (var cam in cachedCameras)
+                if (cam != null) cam.DisableCamera();
+        }
 
         CloseUI();
     }
@@ -125,7 +127,7 @@ public class HackWireManager : MonoBehaviour
         if (attempts >= maxAttempts)
         {
             Debug.Log("🚨 ALARM TRIGGERED");
-            FindObjectOfType<AlarmSystem>()?.TriggerAlarm();
+            if (cachedAlarm != null) cachedAlarm.TriggerAlarm();
             CloseUI();
             return;
         }
