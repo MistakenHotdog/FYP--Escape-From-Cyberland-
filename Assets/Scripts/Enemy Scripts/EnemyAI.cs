@@ -25,6 +25,10 @@ public class EnemyAI : MonoBehaviour
     public float shootDamage = 10f;
     public LayerMask shootLayerMask = ~0;
 
+    [Header("Audio")]
+    public AudioSource shootAudioSource;
+    public AudioClip shootSound;
+
     [Header("Patrol")]
     public float idleTimeAtPatrolPoint = 4f;
 
@@ -52,6 +56,17 @@ public class EnemyAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+
+        // 🔊 Setup AudioSource
+        if (shootAudioSource == null)
+        {
+            shootAudioSource = GetComponent<AudioSource>();
+            if (shootAudioSource == null)
+                shootAudioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        shootAudioSource.playOnAwake = false;
+        shootAudioSource.spatialBlend = 1f; // 3D sound
     }
 
     void Start()
@@ -77,10 +92,9 @@ public class EnemyAI : MonoBehaviour
 
     void Update()
     {
-        if (player == null || agent == null || animator == null) return;
+        if (player == null) return;
 
         float distToPlayer = Vector3.Distance(transform.position, player.position);
-
         float currentDetectionRange = isAlerted ? alertDetectionRange : normalDetectionRange;
 
         if (distToPlayer <= currentDetectionRange && HasLineOfSightToPlayer())
@@ -119,14 +133,12 @@ public class EnemyAI : MonoBehaviour
         Vector3 origin = transform.position + Vector3.up * 1.5f;
         Vector3 target = player.position + Vector3.up;
         Vector3 dir = target - origin;
-        if (dir.sqrMagnitude < 0.01f) return true;
-        // Check if any solid object blocks the view between enemy and player
+
         if (Physics.Raycast(origin, dir.normalized, out RaycastHit hit, dir.magnitude))
         {
-            // Hit something — if it's the player, we can see them; if it's a wall, blocked
             return hit.collider.CompareTag(playerTag);
         }
-        // Nothing solid between us and the player — clear line of sight
+
         return true;
     }
 
@@ -137,14 +149,7 @@ public class EnemyAI : MonoBehaviour
 
         if (agent == null) return;
 
-        if (alert)
-        {
-            agent.speed = runSpeed;
-        }
-        else
-        {
-            agent.speed = walkSpeed;
-        }
+        agent.speed = alert ? runSpeed : walkSpeed;
     }
 
     // ---------------- PATROL ----------------
@@ -239,6 +244,13 @@ public class EnemyAI : MonoBehaviour
 
     IEnumerator FireSingleShot()
     {
+        // 🔊 PLAY SHOOT SOUND
+        if (shootAudioSource != null && shootSound != null)
+        {
+            shootAudioSource.pitch = Random.Range(0.9f, 1.1f); // optional polish
+            shootAudioSource.PlayOneShot(shootSound);
+        }
+
         yield return null;
 
         Vector3 origin = muzzle ? muzzle.position : transform.position + Vector3.up * 1.5f;
