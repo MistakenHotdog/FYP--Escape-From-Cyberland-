@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class HackWireManager : MonoBehaviour
 {
@@ -27,6 +29,10 @@ public class HackWireManager : MonoBehaviour
 
     private bool isHackCompleted = false;
 
+    [Header("UI Messages")]
+    public TMP_Text hackMessageText;
+    public float messageDisplayTime = 2f;
+
     void Start()
     {
         playerController = FindObjectOfType<PlayerMove>();
@@ -45,7 +51,7 @@ public class HackWireManager : MonoBehaviour
 
     public void StartConnection(HackNodeUI node)
     {
-        if (isHackCompleted) return; // ❌ block
+        if (isHackCompleted) return;
 
         startNode = node;
         currentLine = Instantiate(linePrefab, hackPanel.transform);
@@ -53,7 +59,7 @@ public class HackWireManager : MonoBehaviour
 
     public void EndConnection(HackNodeUI endNode)
     {
-        if (isHackCompleted) return; // ❌ block
+        if (isHackCompleted) return;
         if (startNode == null || currentLine == null) return;
 
         Vector3 startScreen = RectTransformUtility.WorldToScreenPoint(null, startNode.transform.position);
@@ -122,30 +128,32 @@ public class HackWireManager : MonoBehaviour
                 if (cam != null) cam.DisableCamera();
         }
 
-        // 🔥 Disable ALL hack triggers in scene
+        ShowMessage("✅ Hack Successful!");
+
+        Invoke(nameof(CloseUI), messageDisplayTime);
+
+        // Disable all hack triggers
         TriggerShowButton[] triggers = FindObjectsOfType<TriggerShowButton>();
         foreach (var t in triggers)
-        {
             t.gameObject.SetActive(false);
-        }
-
-        CloseUI();
     }
 
     void Fail()
     {
         attempts++;
 
-        Debug.Log("❌ Wrong wiring");
-
         if (attempts >= maxAttempts)
         {
-            Debug.Log("🚨 ALARM TRIGGERED");
-            if (cachedAlarm != null) cachedAlarm.TriggerAlarm();
-            CloseUI();
+            ShowMessage("❌ Hack Unsuccessful!\n🚨 Alarm Triggered");
+
+            if (cachedAlarm != null)
+                cachedAlarm.TriggerAlarm();
+
+            Invoke(nameof(CloseUI), messageDisplayTime);
             return;
         }
 
+        ShowMessage("❌ Wrong wiring, try again!");
         ResetPuzzle();
     }
 
@@ -162,13 +170,16 @@ public class HackWireManager : MonoBehaviour
 
     public void OpenUI()
     {
-        if (isHackCompleted) return; // ❌ block reopening
+        if (isHackCompleted) return;
 
         hackPanel.SetActive(true);
         Time.timeScale = 1f;
 
         if (playerController != null)
             playerController.enabled = false;
+
+        // 🧾 SHOW INSTRUCTIONS
+        ShowMessage("Connect matching nodes to hack the system");
     }
 
     public void CloseUI()
@@ -179,6 +190,24 @@ public class HackWireManager : MonoBehaviour
             playerController.enabled = true;
 
         ResetPuzzle();
+    }
+
+    void ShowMessage(string message)
+    {
+        if (hackMessageText == null) return;
+
+        StopAllCoroutines();
+        StartCoroutine(ShowMessageRoutine(message));
+    }
+
+    IEnumerator ShowMessageRoutine(string message)
+    {
+        hackMessageText.gameObject.SetActive(true);
+        hackMessageText.text = message;
+
+        yield return new WaitForSecondsRealtime(messageDisplayTime);
+
+        hackMessageText.gameObject.SetActive(false);
     }
 
     public bool IsHackCompleted()
