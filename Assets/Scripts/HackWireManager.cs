@@ -25,6 +25,8 @@ public class HackWireManager : MonoBehaviour
     private AlarmSystem cachedAlarm;
     private SurveillanceCamera[] cachedCameras;
 
+    private bool isHackCompleted = false;
+
     void Start()
     {
         playerController = FindObjectOfType<PlayerMove>();
@@ -43,12 +45,15 @@ public class HackWireManager : MonoBehaviour
 
     public void StartConnection(HackNodeUI node)
     {
+        if (isHackCompleted) return; // ❌ block
+
         startNode = node;
         currentLine = Instantiate(linePrefab, hackPanel.transform);
     }
 
     public void EndConnection(HackNodeUI endNode)
     {
+        if (isHackCompleted) return; // ❌ block
         if (startNode == null || currentLine == null) return;
 
         Vector3 startScreen = RectTransformUtility.WorldToScreenPoint(null, startNode.transform.position);
@@ -109,10 +114,19 @@ public class HackWireManager : MonoBehaviour
 
     void Success()
     {
+        isHackCompleted = true;
+
         if (cachedCameras != null)
         {
             foreach (var cam in cachedCameras)
                 if (cam != null) cam.DisableCamera();
+        }
+
+        // 🔥 Disable ALL hack triggers in scene
+        TriggerShowButton[] triggers = FindObjectsOfType<TriggerShowButton>();
+        foreach (var t in triggers)
+        {
+            t.gameObject.SetActive(false);
         }
 
         CloseUI();
@@ -146,28 +160,29 @@ public class HackWireManager : MonoBehaviour
         }
     }
 
-    // 🔥 OPEN UI (NO TIMESCALE FREEZE)
     public void OpenUI()
     {
-        hackPanel.SetActive(true);
+        if (isHackCompleted) return; // ❌ block reopening
 
-        // DO NOT pause time → keeps audio working
+        hackPanel.SetActive(true);
         Time.timeScale = 1f;
 
-        // Disable player movement instead
         if (playerController != null)
             playerController.enabled = false;
     }
 
-    // 🔥 CLOSE UI
     public void CloseUI()
     {
         hackPanel.SetActive(false);
 
-        // Re-enable player
         if (playerController != null)
             playerController.enabled = true;
 
         ResetPuzzle();
+    }
+
+    public bool IsHackCompleted()
+    {
+        return isHackCompleted;
     }
 }
