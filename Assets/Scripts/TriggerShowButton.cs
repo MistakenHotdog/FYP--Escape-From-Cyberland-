@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
@@ -6,26 +6,20 @@ using System.Collections;
 public class TriggerShowButton : MonoBehaviour
 {
     [Header("UI")]
-    [Tooltip("The Button GameObject (set inactive by default in inspector).")]
-    public GameObject actionButtonGO; // whole Button GameObject (so we can activate/deactivate)
-    [Tooltip("Optional: fade duration when showing/hiding")]
+    public GameObject actionButtonGO;
     public float fadeDuration = 0.15f;
 
-    [Header("Cutscene")]
-    [Tooltip("Optional: if left empty, script will try to find a CutsceneController in scene.")]
-    public MonoBehaviour cutsceneControllerScript; // drag your CutsceneController component here
+    [Header("Cutscene / Hack")]
+    public MonoBehaviour cutsceneControllerScript;
+    public HackWireManager hackManager;
 
-    [Tooltip("If this is true, the button will auto-hide after pressing once.")]
     public bool hideAfterPress = true;
 
-    // private
     private Button _button;
     private CanvasGroup _canvasGroup;
-    private bool _playerInside = false;
 
     void Reset()
     {
-        // make sure collider is a trigger by default
         var col = GetComponent<Collider>();
         col.isTrigger = true;
     }
@@ -38,24 +32,18 @@ public class TriggerShowButton : MonoBehaviour
             return;
         }
 
-        // Ensure there's a CanvasGroup for fading; add if missing.
         _canvasGroup = actionButtonGO.GetComponent<CanvasGroup>();
         if (_canvasGroup == null)
             _canvasGroup = actionButtonGO.AddComponent<CanvasGroup>();
 
-        // grab Button component if present
         _button = actionButtonGO.GetComponent<Button>();
-        if (_button == null)
-            Debug.LogWarning("[TriggerShowButton] No Button component found on actionButtonGO.");
 
-        // Wire up click: either call PlayCutscene via reflection or by calling the public method if we have the component
         if (_button != null)
         {
             _button.onClick.RemoveAllListeners();
             _button.onClick.AddListener(OnActionButtonPressed);
         }
 
-        // keep button hidden initially
         actionButtonGO.SetActive(false);
         _canvasGroup.alpha = 0f;
         _canvasGroup.interactable = false;
@@ -65,20 +53,24 @@ public class TriggerShowButton : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-        _playerInside = true;
+
+        // ❌ DO NOT SHOW if already hacked
+        if (hackManager != null && hackManager.IsHackCompleted())
+            return;
+
         ShowButton();
     }
 
     void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-        _playerInside = false;
         HideButton();
     }
 
     private void ShowButton()
     {
         if (actionButtonGO == null) return;
+
         actionButtonGO.SetActive(true);
         StopAllCoroutines();
         StartCoroutine(FadeCanvasGroup(_canvasGroup, _canvasGroup.alpha, 1f, fadeDuration, true));
@@ -87,6 +79,7 @@ public class TriggerShowButton : MonoBehaviour
     private void HideButton()
     {
         if (actionButtonGO == null) return;
+
         StopAllCoroutines();
         StartCoroutine(FadeCanvasGroup(_canvasGroup, _canvasGroup.alpha, 0f, fadeDuration, false));
     }
@@ -94,6 +87,7 @@ public class TriggerShowButton : MonoBehaviour
     private IEnumerator FadeCanvasGroup(CanvasGroup cg, float from, float to, float duration, bool enableInteractOnComplete)
     {
         float elapsed = 0f;
+
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
@@ -101,52 +95,32 @@ public class TriggerShowButton : MonoBehaviour
             cg.alpha = Mathf.Lerp(from, to, t);
             yield return null;
         }
+
         cg.alpha = to;
         cg.interactable = enableInteractOnComplete && to > 0.5f;
         cg.blocksRaycasts = cg.interactable;
 
-        if (!cg.interactable) // fully hidden -> deactivate the GO to keep hierarchy tidy
-        {
+        if (!cg.interactable)
             actionButtonGO.SetActive(false);
-        }
     }
 
     private void OnActionButtonPressed()
     {
-        // call PlayCutscene on the CutsceneController if available
+        // ❌ BLOCK PRESS if already hacked
+        if (hackManager != null && hackManager.IsHackCompleted())
+            return;
+
         if (cutsceneControllerScript != null)
         {
-            // try to call PlayCutscene() using a common pattern:
             var method = cutsceneControllerScript.GetType().GetMethod("PlayCutscene");
             if (method != null)
-            {
                 method.Invoke(cutsceneControllerScript, null);
-            }
-            else
-            {
-                Debug.LogWarning("[TriggerShowButton] assigned script does not have PlayCutscene() method.");
-            }
-        }
-        else
-        {
-            var found = FindObjectOfType<CutsceneController>();
-            if (found != null)
-            {
-                found.PlayCutscene();
-            }
-            else
-            {
-                Debug.LogWarning("[TriggerShowButton] No CutsceneController found. Assign cutsceneControllerScript.");
-            }
         }
 
         if (hideAfterPress)
-        {
             HideButton();
-        }
     }
 
-    // Optional: in case player is still inside but you disable/enable the button externally
     void OnDisable()
     {
         if (actionButtonGO != null)
