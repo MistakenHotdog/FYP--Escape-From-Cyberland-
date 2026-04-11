@@ -1,13 +1,16 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DoorwayLaser : MonoBehaviour
 {
     public bool isOn = true;
+
+    [Header("Audio")]
     public AudioClip dangerSound;
     public AudioSource audioSource;
 
     [Header("Damage")]
-    public float contactDamage = 15f;
+    public float contactDamage = 8f; // damage per second
+    public float entryDamage = 3f;   // small hit when entering (optional)
 
     private AlarmSystem cachedAlarm;
     private Renderer[] childRenderers;
@@ -50,13 +53,15 @@ public class DoorwayLaser : MonoBehaviour
 
         if (other.CompareTag("Player"))
         {
+            // Trigger alarm
             if (cachedAlarm != null)
                 cachedAlarm.TriggerAlarm();
 
             PlayerHealth health = other.GetComponent<PlayerHealth>();
             if (health != null)
-                health.TakeDamage(contactDamage);
+                health.TakeDamage(entryDamage); // ✅ small safe hit
 
+            // Play sound
             if (audioSource != null && dangerSound != null)
                 audioSource.PlayOneShot(dangerSound);
         }
@@ -70,7 +75,7 @@ public class DoorwayLaser : MonoBehaviour
         {
             PlayerHealth health = other.GetComponent<PlayerHealth>();
             if (health != null)
-                health.TakeDamage(contactDamage * Time.deltaTime);
+                health.TakeDamage(contactDamage * Time.deltaTime); // ✅ smooth damage
         }
     }
 }
