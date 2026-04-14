@@ -16,7 +16,7 @@ public class PlayerMove : MonoBehaviour
 
     [Header("Effects")]
     [Range(0f, 1f)]
-    public float speedMultiplier = 1f; // 🔥 FIXED (for your error)
+    public float speedMultiplier = 1f;
 
     [Header("References")]
     public Joystick joystick;
@@ -95,7 +95,7 @@ public class PlayerMove : MonoBehaviour
             return;
         }
 
-        // 🏃 Speed calculation (WITH multiplier)
+        // 🏃 Speed calculation
         float baseSpeed = (magnitude >= runThreshold) ? runSpeed : walkSpeed;
         float finalSpeed = baseSpeed * speedMultiplier;
 
@@ -109,20 +109,26 @@ public class PlayerMove : MonoBehaviour
         forward.Normalize();
         right.Normalize();
 
-        Vector3 moveDir = (forward * v + right * h).normalized * finalSpeed;
+        Vector3 moveDir = (forward * v + right * h).normalized;
 
         // 🚀 Apply movement
-        rb.velocity = new Vector3(moveDir.x, rb.velocity.y, moveDir.z);
+        rb.velocity = new Vector3(moveDir.x * finalSpeed, rb.velocity.y, moveDir.z * finalSpeed);
 
-        // 🔄 Smooth rotation
+        // 🔥 FIXED ROTATION (NO MORE SHAKING)
         if (moveDir != Vector3.zero)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDir);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                rotationSpeed * Time.fixedDeltaTime
-            );
+            float dot = Vector3.Dot(transform.forward, moveDir);
+
+            // Only rotate if NOT moving strongly backward
+            if (dot > -0.5f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(moveDir);
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation,
+                    targetRotation,
+                    rotationSpeed * Time.fixedDeltaTime
+                );
+            }
         }
 
         // 🎭 Animation
