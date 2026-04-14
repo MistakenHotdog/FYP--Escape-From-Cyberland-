@@ -10,12 +10,19 @@ public class PausePanelController : MonoBehaviour
     public void PauseGame()
     {
         Time.timeScale = 0f;
-        if (pausePanel != null) pausePanel.SetActive(true);
+
+        if (pausePanel != null)
+        {
+            pausePanel.transform.SetAsLastSibling();
+            pausePanel.SetActive(true);
+        }
     }
 
     public void ResumeGame()
     {
-        if (pausePanel != null) pausePanel.SetActive(false);
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+
         Time.timeScale = 1f;
     }
 
