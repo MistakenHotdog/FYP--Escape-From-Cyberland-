@@ -68,7 +68,7 @@ public class PlayerMove : MonoBehaviour
         float h = 0f;
         float v = 0f;
 
-        // 🎮 INPUT SYSTEM SWITCH
+        // Normal control input
         if (controlMode == ControlMode.Joystick)
         {
             if (joystick != null)
@@ -81,6 +81,15 @@ public class PlayerMove : MonoBehaviour
         {
             h = ButtonInput.Horizontal;
             v = ButtonInput.Vertical;
+        }
+
+        // Voice overrides only when active
+        VoiceMotor.Tick();
+
+        if (VoiceMotor.HasInput)
+        {
+            h = VoiceMotor.Horizontal;
+            v = VoiceMotor.Vertical;
         }
 
         Vector2 input = new Vector2(h, v);
