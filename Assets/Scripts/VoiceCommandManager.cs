@@ -20,6 +20,7 @@ public class VoiceCommandManager : MonoBehaviour
 
     private AndroidVoiceBridge androidBridge;
     private bool isListening = false;
+    private bool voiceModeEnabled = false;
 
     void Awake()
     {
@@ -29,7 +30,7 @@ public class VoiceCommandManager : MonoBehaviour
     void Update()
     {
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
-        if (enableEditorSimulation && IsVoiceModeActive() && isListening)
+        if (enableEditorSimulation && IsVoiceModeActive() && voiceModeEnabled)
         {
             SimulateEditorCommands();
         }
@@ -70,6 +71,38 @@ public class VoiceCommandManager : MonoBehaviour
             Debug.Log("[Voice] Editor listening started. Use I/K/J/L/P/H.");
 #endif
     }
+    public void ToggleVoiceListening()
+    {
+        if (!IsVoiceModeActive())
+        {
+            if (logCommands)
+                Debug.Log("[Voice] Voice UI is not active.");
+            return;
+        }
+
+        voiceModeEnabled = !voiceModeEnabled;
+
+        if (voiceModeEnabled)
+        {
+            if (logCommands)
+                Debug.Log("[Voice] Voice mode ENABLED");
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+        androidBridge.StartListening();
+#endif
+        }
+        else
+        {
+            if (logCommands)
+                Debug.Log("[Voice] Voice mode DISABLED");
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+        androidBridge.StopListening();
+#endif
+
+            VoiceMotor.Stop();
+        }
+    }
     public void StopListening()
     {
         isListening = false;
@@ -82,7 +115,7 @@ public class VoiceCommandManager : MonoBehaviour
     }
     public void OnVoiceResult(string recognizedText)
     {
-        if (!IsVoiceModeActive())
+        if (!IsVoiceModeActive() || !voiceModeEnabled)
             return;
 
         if (string.IsNullOrWhiteSpace(recognizedText))
@@ -94,12 +127,22 @@ public class VoiceCommandManager : MonoBehaviour
             Debug.Log("[Voice] Heard: " + cmd);
 
         ExecuteCommand(cmd);
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+    if (voiceModeEnabled)
+        androidBridge.StartListening();
+#endif
     }
 
     public void OnVoiceError(string error)
     {
         if (logCommands)
             Debug.LogWarning("[Voice] " + error);
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+    if (voiceModeEnabled && IsVoiceModeActive())
+        androidBridge.StartListening();
+#endif
     }
 
     public void ExecuteCommand(string cmd)
@@ -136,13 +179,17 @@ public class VoiceCommandManager : MonoBehaviour
         if (cmd.Contains("pause"))
         {
             VoiceMotor.Stop();
+            voiceModeEnabled = false;
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+    androidBridge.StopListening();
+#endif
 
             if (pausePanelController != null)
                 pausePanelController.PauseGame();
 
             return;
         }
-
         if (cmd.Contains("hack"))
         {
             VoiceMotor.Stop();
@@ -169,43 +216,43 @@ public class VoiceCommandManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.I))
         {
             ExecuteCommand("forward");
-            isListening = false;
+
         }
 
         if (Input.GetKeyDown(KeyCode.K))
         {
             ExecuteCommand("backward");
-            isListening = false;
+
         }
 
         if (Input.GetKeyDown(KeyCode.J))
         {
             ExecuteCommand("left");
-            isListening = false;
+
         }
 
         if (Input.GetKeyDown(KeyCode.L))
         {
             ExecuteCommand("right");
-            isListening = false;
+
         }
 
         if (Input.GetKeyDown(KeyCode.P))
         {
             ExecuteCommand("pause");
-            isListening = false;
+
         }
 
         if (Input.GetKeyDown(KeyCode.H))
         {
             ExecuteCommand("hack");
-            isListening = false;
+
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
             ExecuteCommand("stop");
-            isListening = false;
+
         }
     }
 
