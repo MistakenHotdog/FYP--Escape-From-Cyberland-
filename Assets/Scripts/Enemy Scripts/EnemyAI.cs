@@ -23,7 +23,10 @@ public class EnemyAI : MonoBehaviour
     public float turnSpeed = 6f;
     public Transform muzzle;
     public float shootDamage = 10f;
-    public LayerMask shootLayerMask = ~0;
+
+    [Header("Bullet")]
+    public GameObject bulletPrefab;
+    public Transform firePoint;
 
     [Header("Audio")]
     public AudioSource shootAudioSource;
@@ -66,7 +69,7 @@ public class EnemyAI : MonoBehaviour
         }
 
         shootAudioSource.playOnAwake = false;
-        shootAudioSource.spatialBlend = 1f; // 3D sound
+        shootAudioSource.spatialBlend = 1f;
     }
 
     void Start()
@@ -142,14 +145,12 @@ public class EnemyAI : MonoBehaviour
         return true;
     }
 
-    // ---------------- ALERT SYSTEM ----------------
+    // ---------------- ALERT ----------------
     public void SetAlert(bool alert)
     {
         isAlerted = alert;
-
-        if (agent == null) return;
-
-        agent.speed = alert ? runSpeed : walkSpeed;
+        if (agent != null)
+            agent.speed = alert ? runSpeed : walkSpeed;
     }
 
     // ---------------- PATROL ----------------
@@ -242,28 +243,29 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    // 🔫 BULLET SHOOTING
     IEnumerator FireSingleShot()
     {
-        // 🔊 PLAY SHOOT SOUND
+        // 🔊 SOUND
         if (shootAudioSource != null && shootSound != null)
         {
-            shootAudioSource.pitch = Random.Range(0.9f, 1.1f); // optional polish
+            shootAudioSource.pitch = Random.Range(0.9f, 1.1f);
             shootAudioSource.PlayOneShot(shootSound);
         }
 
         yield return null;
 
-        Vector3 origin = muzzle ? muzzle.position : transform.position + Vector3.up * 1.5f;
-        Vector3 dir = (player.position + Vector3.up) - origin;
-
-        if (Physics.Raycast(origin, dir.normalized, out RaycastHit hit, shootRange, shootLayerMask))
+        if (bulletPrefab != null && firePoint != null)
         {
-            if (hit.collider.CompareTag(playerTag))
-            {
-                PlayerHealth ph = hit.collider.GetComponent<PlayerHealth>();
-                if (ph != null)
-                    ph.TakeDamage(shootDamage);
-            }
+            // Aim bullet toward player
+            Vector3 targetPos = player.position + Vector3.up * 1.2f;
+            Quaternion rot = Quaternion.LookRotation(targetPos - firePoint.position);
+
+            GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+
+            // FORCE direction toward player
+            Vector3 direction = (player.position + Vector3.up - firePoint.position).normalized;
+            bullet.transform.forward = direction;
         }
     }
 }

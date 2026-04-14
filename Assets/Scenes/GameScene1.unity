@@ -7853,6 +7853,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 380621905}
   m_CullTransparentMesh: 1
+--- !u!1 &412072463
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 412072464}
+  m_Layer: 0
+  m_Name: ShootPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &412072464
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412072463}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.14810099, y: 0.9841555, z: 0.014507143, w: 0.09640382}
+  m_LocalPosition: {x: 1.900001, y: 0.44000006, z: -0.050000504}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1808062256}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &416014162
 GameObject:
   m_ObjectHideFlags: 0
@@ -9851,7 +9882,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5666773957880323177, guid: 7d610277971c2c243be6ddc288bb9268, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -35.8
+      value: -64.7
       objectReference: {fileID: 0}
     - target: {fileID: 5666773957880323177, guid: 7d610277971c2c243be6ddc288bb9268, type: 3}
       propertyPath: m_LocalPosition.y
@@ -9859,7 +9890,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5666773957880323177, guid: 7d610277971c2c243be6ddc288bb9268, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.8
+      value: 61.3
       objectReference: {fileID: 0}
     - target: {fileID: 5666773957880323177, guid: 7d610277971c2c243be6ddc288bb9268, type: 3}
       propertyPath: m_LocalRotation.w
@@ -24400,6 +24431,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1803526585}
   m_Mesh: {fileID: -2862938448358561708, guid: d9089f5738473494d8304c7bb1db122f, type: 3}
+--- !u!4 &1808062256 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8975524999793025351, guid: 922291fcbdf16044a941f6910aeb8adc, type: 3}
+  m_PrefabInstance: {fileID: 3521242602829715090}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1816063894
 GameObject:
   m_ObjectHideFlags: 0
@@ -26090,10 +26126,9 @@ MonoBehaviour:
   fireRate: 0.6
   turnSpeed: 6
   muzzle: {fileID: 1038010925}
-  shootDamage: 10
-  shootLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
+  shootDamage: 1
+  bulletPrefab: {fileID: 3875849552953553520, guid: e3e4081d82d30cc49a3f275f1b38a79d, type: 3}
+  firePoint: {fileID: 412072464}
   shootAudioSource: {fileID: 1669191606}
   shootSound: {fileID: 8300000, guid: 6ff3e618994c2e54fa36c71ea46ec9c4, type: 3}
   idleTimeAtPatrolPoint: 1.2
@@ -33228,6 +33263,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1574801434522173984, guid: 922291fcbdf16044a941f6910aeb8adc, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1038010925}
+    - targetCorrespondingSourceObject: {fileID: 8975524999793025351, guid: 922291fcbdf16044a941f6910aeb8adc, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 412072464}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5877910863937253793, guid: 922291fcbdf16044a941f6910aeb8adc, type: 3}
       insertIndex: -1
