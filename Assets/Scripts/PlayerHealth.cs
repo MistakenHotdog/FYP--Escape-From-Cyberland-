@@ -95,6 +95,10 @@ public class PlayerHealth : MonoBehaviour
             terminationUI.ShowGameOver();
         }
 
+        if (GameplaySessionLogger.Instance != null)
+        {
+            GameplaySessionLogger.Instance.EndSession(false);
+        }
         Time.timeScale = 0f;
         enabled = false;
     }

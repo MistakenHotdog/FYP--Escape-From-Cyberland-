@@ -29,7 +29,12 @@ public class PausePanelController : MonoBehaviour
     // Called by Exit button
     public void ExitToMainMenu()
     {
-        Time.timeScale = 1f;          // Always unpause before switching scene
+        if (GameplaySessionLogger.Instance != null)
+        {
+            GameplaySessionLogger.Instance.EndSession(false);
+        }
+
+        Time.timeScale = 1f;
         SceneManager.LoadScene(SceneNames.MainMenu);
     }
 }

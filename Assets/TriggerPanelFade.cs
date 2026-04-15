@@ -12,14 +12,12 @@ public class TriggerPanelPopup : MonoBehaviour
     public string mainMenuScene = SceneNames.MainMenu;
 
     private bool hasTriggered = false;
-    private Graphic[] graphics;   // All UI elements on the panel
+    private Graphic[] graphics;
 
     private void Start()
     {
-        // Get all UI graphics (Image, Text, TMP, etc.)
         graphics = panel.GetComponentsInChildren<Graphic>(true);
 
-        // Set them all invisible at start
         foreach (var g in graphics)
         {
             Color c = g.color;
@@ -35,6 +33,12 @@ public class TriggerPanelPopup : MonoBehaviour
         if (!hasTriggered && other.CompareTag("Player"))
         {
             hasTriggered = true;
+
+            if (GameplaySessionLogger.Instance != null)
+            {
+                GameplaySessionLogger.Instance.EndSession(true);
+            }
+
             panel.SetActive(true);
             StartCoroutine(FadeInPanel());
         }
@@ -59,7 +63,6 @@ public class TriggerPanelPopup : MonoBehaviour
             yield return null;
         }
 
-        // Ensure fully visible
         foreach (var g in graphics)
         {
             Color c = g.color;

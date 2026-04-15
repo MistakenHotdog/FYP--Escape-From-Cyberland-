@@ -21,6 +21,9 @@ public class AlarmSystem : MonoBehaviour
     {
         if (isAlarmActive) return;
 
+        if (GameplaySessionLogger.Instance != null)
+            GameplaySessionLogger.Instance.RegisterAlarmTriggered();
+
         StartCoroutine(AlarmRoutine());
     }
 
