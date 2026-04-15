@@ -26,6 +26,9 @@ public class GameplaySessionLogger : MonoBehaviour
         Instance = this;
         sessionStartTime = Time.realtimeSinceStartup;
         uiControlChoice = GetUIControlChoice();
+
+        Debug.Log("[SessionLogger] Persistent path = " + Application.persistentDataPath);
+        Debug.Log("[SessionLogger] Downloads path = " + GetSaveDirectory());
     }
 
     private string GetUIControlChoice()
@@ -34,11 +37,20 @@ public class GameplaySessionLogger : MonoBehaviour
 
         switch (uiType)
         {
-            case 1: return "Joystick";
-            case 2: return "Buttons";
-            case 3: return "Voice";
-            default: return "Unknown";
+            case 1: return "joystick";
+            case 2: return "buttons";
+            case 3: return "voice";
+            default: return "unknown";
         }
+    }
+
+    private string GetSaveDirectory()
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        return "/storage/emulated/0/Download";
+#else
+        return Application.persistentDataPath;
+#endif
     }
 
     public void RegisterAlarmTriggered()
@@ -63,12 +75,16 @@ public class GameplaySessionLogger : MonoBehaviour
         string completionText = completed ? "Yes" : "No";
 
         string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-        string safeUIName = uiControlChoice.ToLower();
-        string fileName = $"{safeUIName}_{timestamp}.csv";
-        string filePath = Path.Combine(Application.persistentDataPath, fileName);
+        string fileName = $"{uiControlChoice}_{timestamp}.csv";
+
+        string saveDirectory = GetSaveDirectory();
+        string filePath = Path.Combine(saveDirectory, fileName);
 
         try
         {
+            if (!Directory.Exists(saveDirectory))
+                Directory.CreateDirectory(saveDirectory);
+
             using (StreamWriter writer = new StreamWriter(filePath, false))
             {
                 writer.WriteLine("UIControlChoice,GameCompletion,GameCompletionTimeSeconds,AlarmTriggerCount,BugTriggerCount");
@@ -79,13 +95,30 @@ public class GameplaySessionLogger : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError("[SessionLogger] Failed to save CSV: " + e.Message);
+            Debug.LogError("[SessionLogger] Failed to save CSV to Downloads: " + e.Message);
+
+            // Fallback to persistentDataPath
+            try
+            {
+                string fallbackPath = Path.Combine(Application.persistentDataPath, fileName);
+
+                using (StreamWriter writer = new StreamWriter(fallbackPath, false))
+                {
+                    writer.WriteLine("UIControlChoice,GameCompletion,GameCompletionTimeSeconds,AlarmTriggerCount,BugTriggerCount");
+                    writer.WriteLine($"{uiControlChoice},{completionText},{completionTime:F2},{alarmTriggerCount},{bugTriggerCount}");
+                }
+
+                Debug.Log("[SessionLogger] Fallback CSV saved to: " + fallbackPath);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[SessionLogger] Fallback save also failed: " + ex.Message);
+            }
         }
     }
 
     private void OnApplicationQuit()
     {
-        // If player force-closes while still in gameplay, save as incomplete
         if (!sessionEnded)
         {
             EndSession(false);
