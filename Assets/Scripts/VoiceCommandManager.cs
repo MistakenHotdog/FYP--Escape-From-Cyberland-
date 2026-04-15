@@ -39,12 +39,13 @@ public class VoiceCommandManager : MonoBehaviour
 
     public bool IsVoiceModeActive()
     {
-        int uiType = PlayerPrefs.GetInt(UI_TYPE_KEY, 1);
-        if (uiType != VOICE_UI_TYPE)
-            return false;
+        int uiType = PlayerPrefs.GetInt("UIType", 1);
+        bool panelActive = voiceUIPanel != null ? voiceUIPanel.activeInHierarchy : true;
 
-        if (voiceUIPanel != null && !voiceUIPanel.activeInHierarchy)
-            return false;
+        Debug.Log("[Voice] UIType = " + uiType + ", panelActive = " + panelActive);
+
+        if (uiType != 3) return false;
+        if (voiceUIPanel != null && !voiceUIPanel.activeInHierarchy) return false;
 
         return true;
     }
@@ -73,35 +74,30 @@ public class VoiceCommandManager : MonoBehaviour
     }
     public void ToggleVoiceListening()
     {
+        Debug.Log("[Voice] ToggleVoiceListening called");
+
         if (!IsVoiceModeActive())
         {
-            if (logCommands)
-                Debug.Log("[Voice] Voice UI is not active.");
+            Debug.Log("[Voice] Voice mode not active");
             return;
         }
 
         voiceModeEnabled = !voiceModeEnabled;
-
-        if (voiceModeEnabled)
-        {
-            if (logCommands)
-                Debug.Log("[Voice] Voice mode ENABLED");
+        Debug.Log("[Voice] voiceModeEnabled = " + voiceModeEnabled);
 
 #if UNITY_ANDROID && !UNITY_EDITOR
+    if (voiceModeEnabled)
+    {
+        Debug.Log("[Voice] About to call Android bridge StartListening()");
         androidBridge.StartListening();
-#endif
-        }
-        else
-        {
-            if (logCommands)
-                Debug.Log("[Voice] Voice mode DISABLED");
-
-#if UNITY_ANDROID && !UNITY_EDITOR
+    }
+    else
+    {
+        Debug.Log("[Voice] About to call Android bridge StopListening()");
         androidBridge.StopListening();
+        VoiceMotor.Stop();
+    }
 #endif
-
-            VoiceMotor.Stop();
-        }
     }
     public void StopListening()
     {
