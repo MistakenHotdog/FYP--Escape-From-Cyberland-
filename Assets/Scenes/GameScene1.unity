@@ -11073,7 +11073,7 @@ Light:
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
-  m_Color: {r: 0.3529412, g: 0.627451, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.8672143, b: 0.990566, a: 1}
   m_Intensity: 2.5
   m_Range: 36.852585
   m_SpotAngle: 30
@@ -14555,7 +14555,7 @@ Light:
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
-  m_Color: {r: 0, g: 1, b: 0.86274505, a: 1}
+  m_Color: {r: 0.25943398, g: 1, b: 0.89835364, a: 1}
   m_Intensity: 2.5
   m_Range: 23.4244
   m_SpotAngle: 30
@@ -14615,7 +14615,7 @@ Transform:
   m_GameObject: {fileID: 1201681821}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -55.6, y: 18.52, z: 57.7}
+  m_LocalPosition: {x: -63.9, y: 18.52, z: 57.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -26246,15 +26246,15 @@ MonoBehaviour:
   alertDetectionRange: 30
   shootRange: 20
   stoppingDistance: 9
-  fireRate: 0.6
+  fireRate: 0.7
   turnSpeed: 6
   muzzle: {fileID: 1038010925}
-  shootDamage: 1
+  shootDamage: 5
   bulletPrefab: {fileID: 3875849552953553520, guid: e3e4081d82d30cc49a3f275f1b38a79d, type: 3}
   firePoint: {fileID: 412072464}
   shootAudioSource: {fileID: 1669191606}
   shootSound: {fileID: 8300000, guid: 6ff3e618994c2e54fa36c71ea46ec9c4, type: 3}
-  idleTimeAtPatrolPoint: 1.2
+  idleTimeAtPatrolPoint: 2
 --- !u!1 &2017232442
 GameObject:
   m_ObjectHideFlags: 0
@@ -29356,7 +29356,7 @@ Transform:
   m_GameObject: {fileID: 507229076755975154}
   serializedVersion: 2
   m_LocalRotation: {x: -0.00000008146035, y: -0.00000011920932, z: -9.710831e-15, w: 1}
-  m_LocalPosition: {x: -137.13188, y: 7.3623834, z: 135.6181}
+  m_LocalPosition: {x: -137.13188, y: 7.36, z: 137.93}
   m_LocalScale: {x: 7.0311813, y: 7.0311813, z: 7.0311813}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -30968,7 +30968,7 @@ Transform:
   m_GameObject: {fileID: 2125017959486927160}
   serializedVersion: 2
   m_LocalRotation: {x: -0.00000008146035, y: -0.00000011920932, z: -9.710831e-15, w: 1}
-  m_LocalPosition: {x: -146.19258, y: 7.3623834, z: 135.6181}
+  m_LocalPosition: {x: -146.19258, y: 7.36, z: 138.07}
   m_LocalScale: {x: 7.0311813, y: 7.0311813, z: 7.0311813}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -33376,6 +33376,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 268f6df90ce50b84fa45f196f1695214, type: 2}
+    - target: {fileID: 7343473399232989571, guid: 922291fcbdf16044a941f6910aeb8adc, type: 3}
+      propertyPath: m_UpdateMode
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 8260855969837517994, guid: 922291fcbdf16044a941f6910aeb8adc, type: 3}
@@ -41710,7 +41714,7 @@ Transform:
   m_GameObject: {fileID: 3213520342612283951}
   serializedVersion: 2
   m_LocalRotation: {x: -0.00000008070003, y: -0.13630822, z: -0.000000011103716, w: 0.99066645}
-  m_LocalPosition: {x: -145.80608, y: 16.987654, z: 135.6181}
+  m_LocalPosition: {x: -144.86, y: 16.987654, z: 137.92}
   m_LocalScale: {x: 7.031182, y: 7.0311813, z: 7.031182}
   m_ConstrainProportionsScale: 0
   m_Children: []
