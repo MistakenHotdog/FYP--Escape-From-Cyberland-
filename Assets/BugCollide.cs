@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class BugCollide : MonoBehaviour
 {
-    public ErrorPopupManager popupManager;
+    public FakeRewardPopupManager fakePopupManager;
 
-    [Header("Logging")]
+    [Header("Cooldown")]
     public float triggerCooldown = 1f;
 
     private float lastTriggerTime = -999f;
@@ -16,26 +16,19 @@ public class BugCollide : MonoBehaviour
 
         lastTriggerTime = Time.time;
 
-        if (GameplaySessionLogger.Instance != null)
-            GameplaySessionLogger.Instance.RegisterBugTriggered();
-
-        if (popupManager != null)
-            popupManager.TriggerBugPopup();
+        if (fakePopupManager != null)
+            fakePopupManager.TriggerFakePopup();
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
-        {
             TryTriggerBug();
-        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
-        {
             TryTriggerBug();
-        }
     }
 }
