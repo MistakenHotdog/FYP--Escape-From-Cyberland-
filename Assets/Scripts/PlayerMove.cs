@@ -43,24 +43,13 @@ public class PlayerMove : MonoBehaviour
 
     void Start()
     {
-        // Force correct mode from prefs
-        ApplyMode(PlayerPrefs.GetInt("ControlMode", 0));
-    }
+        // ✅ Read control ONLY from Main Menu (UIType)
+        int uiType = PlayerPrefs.GetInt("UIType", 1);
 
-    void OnEnable()
-    {
-        ControlSettings.OnControlChanged += ApplyMode;
-    }
+        // 1 = Joystick, 2 = Buttons, 3 = Voice
+        controlMode = (uiType == 1) ? ControlMode.Joystick : ControlMode.Buttons;
 
-    void OnDisable()
-    {
-        ControlSettings.OnControlChanged -= ApplyMode;
-    }
-
-    void ApplyMode(int mode)
-    {
-        controlMode = (mode == 0) ? ControlMode.Joystick : ControlMode.Buttons;
-        Debug.Log("[PlayerMove] Mode set to: " + controlMode);
+        Debug.Log("[PlayerMove] Control Mode: " + controlMode);
     }
 
     void FixedUpdate()
@@ -86,14 +75,19 @@ public class PlayerMove : MonoBehaviour
             v = ButtonInput.Vertical;
         }
 
-        // ---------------- VOICE FIX ----------------
-        // Only override IF voice mode is actually selected
+        // ---------------- VOICE (ONLY WHEN ACTIVE) ----------------
+
         VoiceMotor.Tick();
 
-        if (VoiceMotor.HasInput && IsVoiceModeActive())
+        if (IsVoiceModeActive() && VoiceMotor.HasInput)
         {
             h = VoiceMotor.Horizontal;
             v = VoiceMotor.Vertical;
+        }
+        else if (!IsVoiceModeActive())
+        {
+            // 🔥 Ensure voice never interferes
+            VoiceMotor.Stop();
         }
 
         // ---------------- MOVEMENT ----------------
@@ -127,9 +121,13 @@ public class PlayerMove : MonoBehaviour
         Vector3 moveDir = (forward * v + right * h).normalized;
 
         // Apply movement
-        rb.velocity = new Vector3(moveDir.x * finalSpeed, rb.velocity.y, moveDir.z * finalSpeed);
+        rb.velocity = new Vector3(
+            moveDir.x * finalSpeed,
+            rb.velocity.y,
+            moveDir.z * finalSpeed
+        );
 
-        // Smooth rotation (no backward snapping)
+        // Smooth rotation
         if (moveDir != Vector3.zero)
         {
             float dot = Vector3.Dot(transform.forward, moveDir);
