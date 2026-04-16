@@ -43,22 +43,13 @@ public class PlayerMove : MonoBehaviour
 
     void Start()
     {
-        ApplyMode(PlayerPrefs.GetInt("ControlMode", 0));
-    }
+        // ✅ Read control ONLY from Main Menu (UIType)
+        int uiType = PlayerPrefs.GetInt("UIType", 1);
 
-    void OnEnable()
-    {
-        ControlSettings.OnControlChanged += ApplyMode;
-    }
+        // 1 = Joystick, 2 = Buttons, 3 = Voice
+        controlMode = (uiType == 1) ? ControlMode.Joystick : ControlMode.Buttons;
 
-    void OnDisable()
-    {
-        ControlSettings.OnControlChanged -= ApplyMode;
-    }
-
-    void ApplyMode(int mode)
-    {
-        controlMode = (mode == 0) ? ControlMode.Joystick : ControlMode.Buttons;
+        Debug.Log("[PlayerMove] Control Mode: " + controlMode);
     }
 
     void FixedUpdate()
@@ -68,7 +59,8 @@ public class PlayerMove : MonoBehaviour
         float h = 0f;
         float v = 0f;
 
-        // Normal control input
+        // ---------------- INPUT ----------------
+
         if (controlMode == ControlMode.Joystick)
         {
             if (joystick != null)
@@ -83,19 +75,27 @@ public class PlayerMove : MonoBehaviour
             v = ButtonInput.Vertical;
         }
 
-        // Voice overrides only when active
+        // ---------------- VOICE (ONLY WHEN ACTIVE) ----------------
+
         VoiceMotor.Tick();
 
-        if (VoiceMotor.HasInput)
+        if (IsVoiceModeActive() && VoiceMotor.HasInput)
         {
             h = VoiceMotor.Horizontal;
             v = VoiceMotor.Vertical;
         }
+        else if (!IsVoiceModeActive())
+        {
+            // 🔥 Ensure voice never interferes
+            VoiceMotor.Stop();
+        }
+
+        // ---------------- MOVEMENT ----------------
 
         Vector2 input = new Vector2(h, v);
         float magnitude = Mathf.Clamp01(input.magnitude);
 
-        // 🚫 Stop movement if no input
+        // Stop movement if no input
         if (magnitude < 0.1f)
         {
             animator.SetFloat(speedHash, 0f);
@@ -104,11 +104,11 @@ public class PlayerMove : MonoBehaviour
             return;
         }
 
-        // 🏃 Speed calculation
+        // Speed calculation
         float baseSpeed = (magnitude >= runThreshold) ? runSpeed : walkSpeed;
         float finalSpeed = baseSpeed * speedMultiplier;
 
-        // 🎥 Camera-relative movement
+        // Camera-relative movement
         Vector3 forward = cam.forward;
         Vector3 right = cam.right;
 
@@ -120,15 +120,18 @@ public class PlayerMove : MonoBehaviour
 
         Vector3 moveDir = (forward * v + right * h).normalized;
 
-        // 🚀 Apply movement
-        rb.velocity = new Vector3(moveDir.x * finalSpeed, rb.velocity.y, moveDir.z * finalSpeed);
+        // Apply movement
+        rb.velocity = new Vector3(
+            moveDir.x * finalSpeed,
+            rb.velocity.y,
+            moveDir.z * finalSpeed
+        );
 
-        // 🔥 FIXED ROTATION (NO MORE SHAKING)
+        // Smooth rotation
         if (moveDir != Vector3.zero)
         {
             float dot = Vector3.Dot(transform.forward, moveDir);
 
-            // Only rotate if NOT moving strongly backward
             if (dot > -0.5f)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(moveDir);
@@ -140,8 +143,15 @@ public class PlayerMove : MonoBehaviour
             }
         }
 
-        // 🎭 Animation
+        // Animation
         animator.SetFloat(speedHash, 1f);
         animator.speed = finalSpeed / walkSpeed;
+    }
+
+    // ---------------- HELPER ----------------
+
+    bool IsVoiceModeActive()
+    {
+        return PlayerPrefs.GetInt("UIType", 1) == 3;
     }
 }
