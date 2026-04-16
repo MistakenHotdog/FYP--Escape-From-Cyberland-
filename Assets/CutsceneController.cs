@@ -39,6 +39,15 @@ public class CutsceneController : MonoBehaviour
     public float panelFadeDuration = 0.25f;
     [TextArea] public string panelText = "Cutscene text...";
 
+    [Header("Hack Position")]
+    public Transform hackPoint;
+    public Transform lookTarget;
+
+    private Vector3 originalPosition;
+    private Quaternion originalRotation;
+
+    private bool isHacking = false;
+
     [Header("Optional text components")]
     public Text legacyUIText;
 #if TMP_PRESENT
@@ -157,7 +166,7 @@ public class CutsceneController : MonoBehaviour
 
         // Trigger player animation
         if (playerAnimator != null && !string.IsNullOrEmpty(sitTriggerName))
-            playerAnimator.SetTrigger(sitTriggerName);
+            playerAnimator.SetBool("IsHacking", true);
 
         // Fill the slider over cutsceneDuration (unscaled time)
         float elapsed = 0f;
@@ -206,6 +215,52 @@ public class CutsceneController : MonoBehaviour
 
         isCutscene = false;
         runningCoroutine = null;
+    }
+    public void StartHackSequence()
+    {
+        if (isHacking) return;
+
+        isHacking = true;
+
+        // Save original position
+        originalPosition = transform.position;
+        originalRotation = transform.rotation;
+
+        // Teleport to hack point
+        transform.position = hackPoint.position;
+
+        // Face correct direction
+        if (lookTarget != null)
+        {
+            Vector3 dir = lookTarget.position - transform.position;
+            dir.y = 0;
+            transform.forward = dir;
+        }
+
+        // Disable movement scripts
+        foreach (var mb in disableDuringCutscene)
+            if (mb != null) mb.enabled = false;
+
+        // Start animation
+        playerAnimator.SetBool("IsHacking", true);
+    }
+
+    public void StopHackSequence()
+    {
+        if (!isHacking) return;
+
+        isHacking = false;
+
+        // Stop animation instantly
+        playerAnimator.SetBool("IsHacking", false);
+
+        // Return player to original position
+        transform.position = originalPosition;
+        transform.rotation = originalRotation;
+
+        // Re-enable movement
+        foreach (var mb in disableDuringCutscene)
+            if (mb != null) mb.enabled = true;
     }
 
     IEnumerator FadeCanvasGroup(CanvasGroup cg, float from, float to, float duration, bool enableInteractOnComplete)

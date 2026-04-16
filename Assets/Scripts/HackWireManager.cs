@@ -121,6 +121,7 @@ public class HackWireManager : MonoBehaviour
     void Success()
     {
         isHackCompleted = true;
+        FindObjectOfType<CutsceneController>().StopHackSequence();
 
         if (cachedCameras != null)
         {
@@ -173,6 +174,7 @@ public class HackWireManager : MonoBehaviour
         if (isHackCompleted) return;
 
         hackPanel.SetActive(true);
+        FindObjectOfType<CutsceneController>().StartHackSequence();
         Time.timeScale = 1f;
 
         if (playerController != null)
