@@ -20,6 +20,11 @@ public class PlayerHealth : MonoBehaviour
     [Header("UI Reference")]
     public TerminationUI terminationUI;
 
+    [Header("Shake Settings")]
+    public Transform shakeTarget; // Assign Main Camera
+    public float shakeDuration = 0.2f;
+    public float shakeMagnitude = 0.01f;
+
     void Start()
     {
         currentHealth = maxHealth;
@@ -35,6 +40,7 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= damage;
+        StartCoroutine(Shake());
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
         if (healthBar != null)
@@ -57,6 +63,26 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    private IEnumerator Shake()
+    {
+        if (shakeTarget == null) yield break;
+
+        Vector3 originalPos = shakeTarget.localPosition;
+        float elapsed = 0f;
+
+        while (elapsed < shakeDuration)
+        {
+            float x = Random.Range(-1f, 1f) * shakeMagnitude;
+            float y = Random.Range(-1f, 1f) * shakeMagnitude;
+
+            shakeTarget.localPosition = originalPos + new Vector3(x, y, 0);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        shakeTarget.localPosition = originalPos;
+    }
     private IEnumerator DamageFlash()
     {
         if (isFlashing) yield break;
