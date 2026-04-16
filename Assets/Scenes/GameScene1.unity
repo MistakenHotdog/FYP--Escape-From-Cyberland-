@@ -8935,7 +8935,7 @@ MonoBehaviour:
   hitSoundSource: {fileID: 0}
   hitSound: {fileID: 0}
   terminationUI: {fileID: 264919228}
-  shakeTarget: {fileID: 0}
+  shakeTarget: {fileID: 1149180213}
   shakeDuration: 0.2
   shakeMagnitude: 0.01
 --- !u!1001 &551284268
