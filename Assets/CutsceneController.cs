@@ -243,6 +243,7 @@ public class CutsceneController : MonoBehaviour
 
         // Start animation
         playerAnimator.SetBool("IsHacking", true);
+        Debug.Log("HACK STARTED");
     }
 
     public void StopHackSequence()
