@@ -43,6 +43,7 @@ public class PlayerMove : MonoBehaviour
 
     void Start()
     {
+        // Force correct mode from prefs
         ApplyMode(PlayerPrefs.GetInt("ControlMode", 0));
     }
 
@@ -59,6 +60,7 @@ public class PlayerMove : MonoBehaviour
     void ApplyMode(int mode)
     {
         controlMode = (mode == 0) ? ControlMode.Joystick : ControlMode.Buttons;
+        Debug.Log("[PlayerMove] Mode set to: " + controlMode);
     }
 
     void FixedUpdate()
@@ -68,7 +70,8 @@ public class PlayerMove : MonoBehaviour
         float h = 0f;
         float v = 0f;
 
-        // Normal control input
+        // ---------------- INPUT ----------------
+
         if (controlMode == ControlMode.Joystick)
         {
             if (joystick != null)
@@ -83,19 +86,22 @@ public class PlayerMove : MonoBehaviour
             v = ButtonInput.Vertical;
         }
 
-        // Voice overrides only when active
+        // ---------------- VOICE FIX ----------------
+        // Only override IF voice mode is actually selected
         VoiceMotor.Tick();
 
-        if (VoiceMotor.HasInput)
+        if (VoiceMotor.HasInput && IsVoiceModeActive())
         {
             h = VoiceMotor.Horizontal;
             v = VoiceMotor.Vertical;
         }
 
+        // ---------------- MOVEMENT ----------------
+
         Vector2 input = new Vector2(h, v);
         float magnitude = Mathf.Clamp01(input.magnitude);
 
-        // 🚫 Stop movement if no input
+        // Stop movement if no input
         if (magnitude < 0.1f)
         {
             animator.SetFloat(speedHash, 0f);
@@ -104,11 +110,11 @@ public class PlayerMove : MonoBehaviour
             return;
         }
 
-        // 🏃 Speed calculation
+        // Speed calculation
         float baseSpeed = (magnitude >= runThreshold) ? runSpeed : walkSpeed;
         float finalSpeed = baseSpeed * speedMultiplier;
 
-        // 🎥 Camera-relative movement
+        // Camera-relative movement
         Vector3 forward = cam.forward;
         Vector3 right = cam.right;
 
@@ -120,15 +126,14 @@ public class PlayerMove : MonoBehaviour
 
         Vector3 moveDir = (forward * v + right * h).normalized;
 
-        // 🚀 Apply movement
+        // Apply movement
         rb.velocity = new Vector3(moveDir.x * finalSpeed, rb.velocity.y, moveDir.z * finalSpeed);
 
-        // 🔥 FIXED ROTATION (NO MORE SHAKING)
+        // Smooth rotation (no backward snapping)
         if (moveDir != Vector3.zero)
         {
             float dot = Vector3.Dot(transform.forward, moveDir);
 
-            // Only rotate if NOT moving strongly backward
             if (dot > -0.5f)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(moveDir);
@@ -140,8 +145,15 @@ public class PlayerMove : MonoBehaviour
             }
         }
 
-        // 🎭 Animation
+        // Animation
         animator.SetFloat(speedHash, 1f);
         animator.speed = finalSpeed / walkSpeed;
+    }
+
+    // ---------------- HELPER ----------------
+
+    bool IsVoiceModeActive()
+    {
+        return PlayerPrefs.GetInt("UIType", 1) == 3;
     }
 }
