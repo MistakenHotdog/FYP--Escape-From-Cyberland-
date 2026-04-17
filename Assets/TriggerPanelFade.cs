@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
@@ -6,13 +6,21 @@ using TMPro;
 
 public class TriggerPanelPopup : MonoBehaviour
 {
+    [Header("Victory Panel")]
     public GameObject panel;
     public float fadeDuration = 1f;
+
+    [Header("Scene Flow")]
     public string continueScene = SceneNames.LoadingScene;
     public string mainMenuScene = SceneNames.MainMenu;
 
+    [Header("Escape Gate")]
+    [Tooltip("If true, the escape panel only appears after the hack has been completed.")]
+    public bool requireHackCompleted = true;
+
     private bool hasTriggered = false;
     private Graphic[] graphics;
+    private HackWireManager hackManager;
 
     private void Start()
     {
@@ -26,26 +34,49 @@ public class TriggerPanelPopup : MonoBehaviour
         }
 
         panel.SetActive(false);
+
+        // Cache the hack manager once so we don't search the scene on every trigger.
+        hackManager = FindObjectOfType<HackWireManager>();
+
+        if (requireHackCompleted && hackManager == null)
+        {
+            Debug.LogWarning("[TriggerPanelPopup] requireHackCompleted is true but no HackWireManager was found in the scene. Escape will be allowed without a hack.");
+        }
+        else
+        {
+            Debug.Log($"[TriggerPanelPopup] Escape zone '{name}' ready. requireHackCompleted={requireHackCompleted}");
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!hasTriggered && other.CompareTag("Player"))
+        if (!other.CompareTag("Player")) return;
+        if (hasTriggered) return;
+
+        // Gate: escape only allowed after the hack is complete.
+        if (requireHackCompleted && hackManager != null && !hackManager.IsHackCompleted())
         {
-            hasTriggered = true;
-
-            if (GameplaySessionLogger.Instance != null)
-            {
-                GameplaySessionLogger.Instance.EndSession(true);
-            }
-
-            panel.SetActive(true);
-            StartCoroutine(FadeInPanel());
+            Debug.Log("[TriggerPanelPopup] Player reached escape zone, but hack is NOT completed yet — blocked.");
+            return;
         }
+
+        hasTriggered = true;
+        Debug.Log("[TriggerPanelPopup] Escape conditions met — player reached exit! Showing victory panel.");
+
+        if (GameplaySessionLogger.Instance != null)
+        {
+            GameplaySessionLogger.Instance.EndSession(true);
+            Debug.Log("[TriggerPanelPopup] GameplaySession ended with success=true.");
+        }
+
+        panel.SetActive(true);
+        StartCoroutine(FadeInPanel());
     }
 
     private IEnumerator FadeInPanel()
     {
+        Debug.Log("[TriggerPanelPopup] Fading in victory panel...");
+
         float t = 0f;
 
         while (t < fadeDuration)
@@ -69,15 +100,19 @@ public class TriggerPanelPopup : MonoBehaviour
             c.a = 1;
             g.color = c;
         }
+
+        Debug.Log("[TriggerPanelPopup] Victory panel fully visible.");
     }
 
     public void LoadContinue()
     {
+        Debug.Log($"[TriggerPanelPopup] Loading continue scene: {continueScene}");
         SceneManager.LoadScene(continueScene);
     }
 
     public void LoadMainMenu()
     {
+        Debug.Log($"[TriggerPanelPopup] Loading main menu scene: {mainMenuScene}");
         SceneManager.LoadScene(mainMenuScene);
     }
 }
