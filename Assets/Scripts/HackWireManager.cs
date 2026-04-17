@@ -19,6 +19,9 @@ public class HackWireManager : MonoBehaviour
     };
 
     private List<Vector2Int> playerConnections = new List<Vector2Int>();
+    // Tracks every node that has already been connected (either as start or end).
+    // Prevents drawing multiple lines from/to the same node.
+    private HashSet<HackNodeUI> usedNodes = new HashSet<HackNodeUI>();
 
     public int maxAttempts = 2;
     private int attempts = 0;
@@ -53,6 +56,13 @@ public class HackWireManager : MonoBehaviour
     {
         if (isHackCompleted) return;
 
+        // Block reuse of a node that's already wired up
+        if (usedNodes.Contains(node)) return;
+
+        // If a previous drag was never completed, clean it up before starting a new one
+        if (currentLine != null)
+            Destroy(currentLine);
+
         startNode = node;
         currentLine = Instantiate(linePrefab, hackPanel.transform);
     }
@@ -62,6 +72,13 @@ public class HackWireManager : MonoBehaviour
         if (isHackCompleted) return;
         if (startNode == null || currentLine == null) return;
 
+        // Block if the end node is already wired to another start node
+        if (usedNodes.Contains(endNode))
+        {
+            CancelPendingConnection();
+            return;
+        }
+
         Vector3 startScreen = RectTransformUtility.WorldToScreenPoint(null, startNode.transform.position);
         Vector3 endScreen = RectTransformUtility.WorldToScreenPoint(null, endNode.transform.position);
 
@@ -69,10 +86,24 @@ public class HackWireManager : MonoBehaviour
 
         playerConnections.Add(new Vector2Int(startNode.nodeID, endNode.nodeID));
 
+        // Lock both nodes so they can't be connected again
+        usedNodes.Add(startNode);
+        usedNodes.Add(endNode);
+
         startNode = null;
         currentLine = null;
 
         CheckConnections();
+    }
+
+    // Destroy the in-progress line and clear the start node.
+    // Called when the player releases the pointer without hitting a valid end node.
+    private void CancelPendingConnection()
+    {
+        if (currentLine != null)
+            Destroy(currentLine);
+        currentLine = null;
+        startNode = null;
     }
 
     void UpdateLine(Vector3 startScreen, Vector3 endScreen)
@@ -121,6 +152,7 @@ public class HackWireManager : MonoBehaviour
     void Success()
     {
         isHackCompleted = true;
+        Debug.Log("[HackWireManager] ✅ Hack successful! Escape zone is now open — player can exit the level.");
         FindObjectOfType<CutsceneController>().StopHackSequence();
 
         if (cachedCameras != null)
@@ -161,6 +193,8 @@ public class HackWireManager : MonoBehaviour
     void ResetPuzzle()
     {
         playerConnections.Clear();
+        usedNodes.Clear();
+        CancelPendingConnection();
 
         foreach (Transform child in hackPanel.transform)
         {
