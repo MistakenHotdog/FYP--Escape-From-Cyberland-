@@ -11,16 +11,15 @@ public class HackWireManager : MonoBehaviour
     private HackNodeUI startNode;
     private GameObject currentLine;
 
+    // Question → Answer mapping
     public List<Vector2Int> correctConnections = new List<Vector2Int>()
     {
-        new Vector2Int(0,0),
-        new Vector2Int(1,1),
-        new Vector2Int(2,2)
+        new Vector2Int(0, 2),
+        new Vector2Int(1, 1),
+        new Vector2Int(2, 0)
     };
 
     private List<Vector2Int> playerConnections = new List<Vector2Int>();
-    // Tracks every node that has already been connected (either as start or end).
-    // Prevents drawing multiple lines from/to the same node.
     private HashSet<HackNodeUI> usedNodes = new HashSet<HackNodeUI>();
 
     public int maxAttempts = 2;
@@ -34,13 +33,22 @@ public class HackWireManager : MonoBehaviour
 
     [Header("UI Messages")]
     public TMP_Text hackMessageText;
-    public float messageDisplayTime = 2f;
+    public float messageDisplayTime = 5f;
+
+    [Header("Intro Settings")]
+    public float introDelay = 5f;
+
+    private Coroutine messageCoroutine;
 
     void Start()
     {
         playerController = FindObjectOfType<PlayerMove>();
         cachedAlarm = FindObjectOfType<AlarmSystem>();
         cachedCameras = FindObjectsOfType<SurveillanceCamera>();
+
+        // Ensure panel starts hidden
+        if (hackPanel != null)
+            hackPanel.SetActive(false);
     }
 
     void Update()
@@ -52,14 +60,13 @@ public class HackWireManager : MonoBehaviour
         }
     }
 
+    // ---------------- CONNECTION ----------------
+
     public void StartConnection(HackNodeUI node)
     {
         if (isHackCompleted) return;
-
-        // Block reuse of a node that's already wired up
         if (usedNodes.Contains(node)) return;
 
-        // If a previous drag was never completed, clean it up before starting a new one
         if (currentLine != null)
             Destroy(currentLine);
 
@@ -72,7 +79,6 @@ public class HackWireManager : MonoBehaviour
         if (isHackCompleted) return;
         if (startNode == null || currentLine == null) return;
 
-        // Block if the end node is already wired to another start node
         if (usedNodes.Contains(endNode))
         {
             CancelPendingConnection();
@@ -86,7 +92,6 @@ public class HackWireManager : MonoBehaviour
 
         playerConnections.Add(new Vector2Int(startNode.nodeID, endNode.nodeID));
 
-        // Lock both nodes so they can't be connected again
         usedNodes.Add(startNode);
         usedNodes.Add(endNode);
 
@@ -96,12 +101,11 @@ public class HackWireManager : MonoBehaviour
         CheckConnections();
     }
 
-    // Destroy the in-progress line and clear the start node.
-    // Called when the player releases the pointer without hitting a valid end node.
     private void CancelPendingConnection()
     {
         if (currentLine != null)
             Destroy(currentLine);
+
         currentLine = null;
         startNode = null;
     }
@@ -127,6 +131,8 @@ public class HackWireManager : MonoBehaviour
         lineRect.rotation = Quaternion.Euler(0, 0, angle);
     }
 
+    // ---------------- CHECK ----------------
+
     void CheckConnections()
     {
         if (playerConnections.Count < correctConnections.Count)
@@ -149,10 +155,14 @@ public class HackWireManager : MonoBehaviour
             Fail();
     }
 
+    // ---------------- RESULT ----------------
+
     void Success()
     {
         isHackCompleted = true;
-        Debug.Log("[HackWireManager] ✅ Hack successful! Escape zone is now open — player can exit the level.");
+
+        Debug.Log("✅ Hack successful!");
+
         FindObjectOfType<CutsceneController>().StopHackSequence();
 
         if (cachedCameras != null)
@@ -165,7 +175,6 @@ public class HackWireManager : MonoBehaviour
 
         Invoke(nameof(CloseUI), messageDisplayTime);
 
-        // Disable all hack triggers
         TriggerShowButton[] triggers = FindObjectsOfType<TriggerShowButton>();
         foreach (var t in triggers)
             t.gameObject.SetActive(false);
@@ -177,7 +186,7 @@ public class HackWireManager : MonoBehaviour
 
         if (attempts >= maxAttempts)
         {
-            ShowMessage("❌ Hack Unsuccessful!\n🚨 Alarm Triggered");
+            ShowMessage("❌ Wrong Answers!\n🚨 Alarm Triggered");
 
             if (cachedAlarm != null)
                 cachedAlarm.TriggerAlarm();
@@ -186,7 +195,7 @@ public class HackWireManager : MonoBehaviour
             return;
         }
 
-        ShowMessage("❌ Wrong wiring, try again!");
+        ShowMessage("❌ Incorrect Match! Try again.");
         ResetPuzzle();
     }
 
@@ -203,19 +212,32 @@ public class HackWireManager : MonoBehaviour
         }
     }
 
+    // ---------------- UI FLOW ----------------
+
     public void OpenUI()
     {
         if (isHackCompleted) return;
 
-        hackPanel.SetActive(true);
-        FindObjectOfType<CutsceneController>().StartHackSequence();
-        Time.timeScale = 1f;
+        StartCoroutine(OpenUISequence());
+    }
 
+    IEnumerator OpenUISequence()
+    {
         if (playerController != null)
             playerController.enabled = false;
 
-        // 🧾 SHOW INSTRUCTIONS
-        ShowMessage("Connect matching nodes to hack the system");
+        FindObjectOfType<CutsceneController>().StartHackSequence();
+
+        // Show intro message
+        ShowMessage("Match each cybersecurity question with the correct answer");
+
+        // Wait before showing puzzle
+        yield return new WaitForSecondsRealtime(introDelay);
+
+        // Now show nodes
+        hackPanel.SetActive(true);
+
+        Time.timeScale = 1f;
     }
 
     public void CloseUI()
@@ -228,12 +250,16 @@ public class HackWireManager : MonoBehaviour
         ResetPuzzle();
     }
 
+    // ---------------- MESSAGE ----------------
+
     void ShowMessage(string message)
     {
         if (hackMessageText == null) return;
 
-        StopAllCoroutines();
-        StartCoroutine(ShowMessageRoutine(message));
+        if (messageCoroutine != null)
+            StopCoroutine(messageCoroutine);
+
+        messageCoroutine = StartCoroutine(ShowMessageRoutine(message));
     }
 
     IEnumerator ShowMessageRoutine(string message)
@@ -244,6 +270,8 @@ public class HackWireManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(messageDisplayTime);
 
         hackMessageText.gameObject.SetActive(false);
+
+        messageCoroutine = null;
     }
 
     public bool IsHackCompleted()

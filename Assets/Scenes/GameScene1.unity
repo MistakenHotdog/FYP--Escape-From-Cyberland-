@@ -440,6 +440,7 @@ MonoBehaviour:
   maxAttempts: 2
   hackMessageText: {fileID: 353081474}
   messageDisplayTime: 2
+  introDelay: 2
 --- !u!4 &59359100
 Transform:
   m_ObjectHideFlags: 0
@@ -6031,6 +6032,7 @@ RectTransform:
   - {fileID: 1623778522}
   - {fileID: 1019286536}
   - {fileID: 639549792}
+  - {fileID: 353081473}
   - {fileID: 619318621}
   - {fileID: 1575485569}
   - {fileID: 1953698276}
@@ -6289,10 +6291,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 1149180213}
   cutsceneCamPos: {fileID: 571190332}
-  camMoveSpeed: 2
+  camMoveSpeed: 0.5
   playerAnimator: {fileID: 547922204}
   sitTriggerName: Sit
-  cutsceneDuration: 3
+  cutsceneDuration: 5
   preStartDelay: 0
   timerSlider: {fileID: 1623778523}
   showSlider: 1
@@ -7633,16 +7635,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 353081472}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 619318621}
+  m_Father: {fileID: 114945797}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -114}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &353081474
@@ -8799,7 +8801,7 @@ GameObject:
   - component: {fileID: 479813766}
   - component: {fileID: 479813768}
   m_Layer: 5
-  m_Name: Node_B
+  m_Name: StrongPassword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8822,8 +8824,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -420.99997, y: 41}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -548.1, y: -8}
+  m_SizeDelta: {x: 667.4, y: 217.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &479813766
 MonoBehaviour:
@@ -8845,7 +8847,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: 2f0fa70d2cdf2854d9999effcfd22b75, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8890,7 +8892,7 @@ GameObject:
   - component: {fileID: 486675744}
   - component: {fileID: 486675746}
   m_Layer: 5
-  m_Name: Node_A
+  m_Name: Phishing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8913,8 +8915,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -421, y: 260}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -548.1, y: 260}
+  m_SizeDelta: {x: 542.4, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &486675744
 MonoBehaviour:
@@ -8936,7 +8938,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: 2f0fa70d2cdf2854d9999effcfd22b75, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -10326,7 +10328,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5666773957880323177, guid: 7d610277971c2c243be6ddc288bb9268, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -64.7
+      value: -34.5
       objectReference: {fileID: 0}
     - target: {fileID: 5666773957880323177, guid: 7d610277971c2c243be6ddc288bb9268, type: 3}
       propertyPath: m_LocalPosition.y
@@ -10334,7 +10336,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5666773957880323177, guid: 7d610277971c2c243be6ddc288bb9268, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 61.3
+      value: -6.4
       objectReference: {fileID: 0}
     - target: {fileID: 5666773957880323177, guid: 7d610277971c2c243be6ddc288bb9268, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10630,7 +10632,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4264151, g: 0.39503735, b: 0.39503735, a: 0.5882353}
+  m_Color: {r: 0.45490196, g: 0.45882353, b: 0.45882353, a: 0.93333334}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10673,7 +10675,6 @@ RectTransform:
   - {fileID: 1586075818}
   - {fileID: 1799181558}
   - {fileID: 1219748773}
-  - {fileID: 353081473}
   m_Father: {fileID: 114945797}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -12564,8 +12565,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 82, y: 7.9}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 7.9050903, y: -8.549942}
+  m_SizeDelta: {x: 377.8105, y: 82.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &923757378
 MonoBehaviour:
@@ -12587,7 +12588,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: B
+  m_text: G7#kP!9x@Q
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -12731,8 +12732,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 78.3, y: 6.8}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 5.9974365, y: 82.89998}
+  m_SizeDelta: {x: 571.3955, y: 31.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &928756586
 MonoBehaviour:
@@ -12754,7 +12755,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: C
+  m_text: A fake message used to steal personal information
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -13796,7 +13797,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1027823530}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -13805,8 +13806,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 81, y: 6.67}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 13.61969, y: -11.87559}
+  m_SizeDelta: {x: 615.2392, y: 149.0912}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1027823532
 MonoBehaviour:
@@ -13828,7 +13829,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: B
+  m_text: Which is the strongest password?
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -15456,8 +15457,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 515, y: -187}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 576, y: -304}
+  m_SizeDelta: {x: 613.8, y: 327.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1219748774
 MonoBehaviour:
@@ -15479,7 +15480,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: 2f0fa70d2cdf2854d9999effcfd22b75, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -16110,7 +16111,7 @@ GameObject:
   - component: {fileID: 1264587921}
   - component: {fileID: 1264587923}
   m_Layer: 5
-  m_Name: Node_C
+  m_Name: Malware
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16133,8 +16134,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -420.99997, y: -187}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -548.1, y: -289}
+  m_SizeDelta: {x: 532.5, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1264587921
 MonoBehaviour:
@@ -16156,7 +16157,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: 2f0fa70d2cdf2854d9999effcfd22b75, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -16452,7 +16453,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1270961525}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -16461,8 +16462,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 79.85, y: 6.97}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 12.099976, y: -7.723194}
+  m_SizeDelta: {x: 584.5002, y: 137.3864}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1270961527
 MonoBehaviour:
@@ -16484,7 +16485,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: A
+  m_text: Software designed to damage or steal data
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -18094,9 +18095,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "> CONNECT //node-07\r\nAUTH: \u2588\u2588\u2588\u2588\u2588\u2588\u2592\u2592\u2592\u2592
-    86%\r\nBACKDOOR:: /init/ghost_key >> OK\r\nSEARCH /quarantine/*.bin\r\nRETRIEVE:
-    malware_omega.bin -> /tmp/LOCKBOX\r\n> DISCONNECT"
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -18332,8 +18331,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 78.1, y: 6.34}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 9.197876, y: -9.330002}
+  m_SizeDelta: {x: 490.1956, y: 81.34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1466527454
 MonoBehaviour:
@@ -18355,7 +18354,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: C
+  m_text: What is malware?
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -19409,8 +19408,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 515.0001, y: 37}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 574, y: -3}
+  m_SizeDelta: {x: 637.1, y: 211.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1586075819
 MonoBehaviour:
@@ -19432,7 +19431,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: 2f0fa70d2cdf2854d9999effcfd22b75, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -25569,8 +25568,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 515.0001, y: 257}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 549, y: 257}
+  m_SizeDelta: {x: 411.7, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1799181559
 MonoBehaviour:
@@ -25592,7 +25591,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: 2f0fa70d2cdf2854d9999effcfd22b75, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -26522,7 +26521,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1910144553}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -26531,8 +26530,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 81.13, y: 9.03}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 9.789917, y: -4.9692993}
+  m_SizeDelta: {x: 475.3195, y: 77.9986}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1910144555
 MonoBehaviour:
@@ -26554,7 +26553,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: A
+  m_text: What is phishing?
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
