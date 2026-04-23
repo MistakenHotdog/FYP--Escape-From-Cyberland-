@@ -3062,6 +3062,14 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
       value: OpenUI
       objectReference: {fileID: 0}
+    - target: {fileID: 1906656460571017130, guid: a676bc8a8d11dc64ab3a72abd4ec807b, type: 3}
+      propertyPath: buttonsUI
+      value: 
+      objectReference: {fileID: 1263093436}
+    - target: {fileID: 2333334485251240696, guid: a676bc8a8d11dc64ab3a72abd4ec807b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2333334485251240696, guid: a676bc8a8d11dc64ab3a72abd4ec807b, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -3187,7 +3195,8 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1173726733}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 8239806886228825235, guid: a676bc8a8d11dc64ab3a72abd4ec807b, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a676bc8a8d11dc64ab3a72abd4ec807b, type: 3}
@@ -13503,6 +13512,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 4803463093519170, guid: 0150c0006494bd84198ac13cd4d0d7f5, type: 3}
   m_PrefabInstance: {fileID: 1258536888}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1263093436 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8844755997969562819, guid: a676bc8a8d11dc64ab3a72abd4ec807b, type: 3}
+  m_PrefabInstance: {fileID: 324106695}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1266263540
 PrefabInstance:
