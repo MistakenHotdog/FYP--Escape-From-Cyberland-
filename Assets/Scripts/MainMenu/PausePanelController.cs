@@ -23,40 +23,11 @@ public class PausePanelController : MonoBehaviour
     // ---------------- RESUME ----------------
     public void ResumeGame()
     {
-        Debug.Log("[Pause] Resuming Game");
-
-        // Hide pause UI
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
-
-        // Resume time
+        pausePanel.SetActive(false);
         Time.timeScale = 1f;
 
-        // 🔥 DEBUG current control mode
-        int uiType = PlayerPrefs.GetInt("UIType", -1);
-        Debug.Log("[Pause] UIType after resume = " + uiType);
-
-        // 🔥 FIX 1: Restore player control mode
-        PlayerMove player = FindObjectOfType<PlayerMove>();
-        if (player != null)
-        {
-            player.RefreshControlMode();
-        }
-        else
-        {
-            Debug.LogWarning("[Pause] PlayerMove not found!");
-        }
-
-        // 🔥 FIX 2: Restore correct UI (THIS FIXES JOYSTICK BUG)
-        ControlUIManager uiManager = FindObjectOfType<ControlUIManager>();
-        if (uiManager != null)
-        {
-            uiManager.RefreshUI();
-        }
-        else
-        {
-            Debug.LogWarning("[Pause] ControlUIManager not found!");
-        }
+        FindObjectOfType<PlayerMove>()?.RefreshControlMode();
+        FindObjectOfType<ControlUIManager>()?.RefreshUI();
     }
 
     // ---------------- EXIT ----------------
