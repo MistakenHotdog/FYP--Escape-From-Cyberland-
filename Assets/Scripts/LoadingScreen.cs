@@ -25,6 +25,15 @@ public class LoadingScreen : MonoBehaviour
         // 🔥 GET SELECTED LEVEL
         sceneToLoad = PlayerPrefs.GetString("SelectedLevel", defaultScene);
 
+        // Safety guard: never let the LoadingScene load itself (would cause an infinite loop).
+        if (string.IsNullOrEmpty(sceneToLoad) || sceneToLoad == SceneNames.LoadingScene)
+        {
+            Debug.LogWarning($"[LoadingScreen] SelectedLevel was '{sceneToLoad}' which would loop. Falling back to '{defaultScene}'.");
+            sceneToLoad = defaultScene;
+            PlayerPrefs.SetString("SelectedLevel", defaultScene);
+            PlayerPrefs.Save();
+        }
+
         Debug.Log("[LoadingScreen] Loading: " + sceneToLoad);
 
         StartCoroutine(HandleLoading());

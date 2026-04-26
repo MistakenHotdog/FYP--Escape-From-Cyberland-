@@ -11,9 +11,10 @@ public class TriggerPanelPopup : MonoBehaviour
     public float fadeDuration = 1f;
 
     [Header("Scene Flow")]
-    public string continueScene = SceneNames.LoadingScene;
     public string mainMenuScene = SceneNames.MainMenu;
     public string level2Scene = SceneNames.Level2;
+
+    private const string LEVEL_KEY = "SelectedLevel";
 
     [Header("Escape Gate")]
     [Tooltip("If true, the escape panel only appears after the hack has been completed.")]
@@ -105,10 +106,13 @@ public class TriggerPanelPopup : MonoBehaviour
         Debug.Log("[TriggerPanelPopup] Victory panel fully visible.");
     }
 
-    public void LoadContinue()
+    public void RestartLevel()
     {
-        Debug.Log($"[TriggerPanelPopup] Loading continue scene: {continueScene}");
-        SceneManager.LoadScene(continueScene);
+        string currentScene = SceneManager.GetActiveScene().name;
+        Debug.Log($"[TriggerPanelPopup] Restart → reloading current level '{currentScene}' via LoadingScene.");
+        PlayerPrefs.SetString(LEVEL_KEY, currentScene);
+        PlayerPrefs.Save();
+        SceneManager.LoadScene(SceneNames.LoadingScene);
     }
 
     public void LoadMainMenu()
@@ -119,7 +123,9 @@ public class TriggerPanelPopup : MonoBehaviour
 
     public void LoadLevel2()
     {
-        Debug.Log($"[TriggerPanelPopup] Loading Level 2 scene: {level2Scene}");
-        SceneManager.LoadScene(level2Scene);
+        Debug.Log($"[TriggerPanelPopup] Level 2 button → '{level2Scene}' via LoadingScene.");
+        PlayerPrefs.SetString(LEVEL_KEY, level2Scene);
+        PlayerPrefs.Save();
+        SceneManager.LoadScene(SceneNames.LoadingScene);
     }
 }
