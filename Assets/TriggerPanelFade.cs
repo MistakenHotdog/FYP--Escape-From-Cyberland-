@@ -13,6 +13,7 @@ public class TriggerPanelPopup : MonoBehaviour
     [Header("Scene Flow")]
     public string continueScene = SceneNames.LoadingScene;
     public string mainMenuScene = SceneNames.MainMenu;
+    public string level2Scene = SceneNames.Level2;
 
     [Header("Escape Gate")]
     [Tooltip("If true, the escape panel only appears after the hack has been completed.")]
@@ -114,5 +115,11 @@ public class TriggerPanelPopup : MonoBehaviour
     {
         Debug.Log($"[TriggerPanelPopup] Loading main menu scene: {mainMenuScene}");
         SceneManager.LoadScene(mainMenuScene);
+    }
+
+    public void LoadLevel2()
+    {
+        Debug.Log($"[TriggerPanelPopup] Loading Level 2 scene: {level2Scene}");
+        SceneManager.LoadScene(level2Scene);
     }
 }
