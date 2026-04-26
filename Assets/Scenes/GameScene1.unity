@@ -16333,7 +16333,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   panel: {fileID: 639549789}
   fadeDuration: 1
-  continueScene: LoadingScene
   mainMenuScene: MainMenu
   level2Scene: Level2
   requireHackCompleted: 1
@@ -32140,6 +32139,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1827988217}
+    - target: {fileID: 9190604922238750531, guid: a676bc8a8d11dc64ab3a72abd4ec807b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: RestartLevel
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 8239806886228825235, guid: a676bc8a8d11dc64ab3a72abd4ec807b, type: 3}
