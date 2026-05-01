@@ -2,13 +2,26 @@
 
 public class PhonePickup : MonoBehaviour
 {
-    public GameObject takeButton;
+    [Header("UI")]
+    public GameObject takeButton;     // "Take" button
+    public GameObject phoneUIIcon;    // 📱 UI icon (bottom right)
+
+    private void Start()
+    {
+        // Make sure UI starts hidden
+        if (takeButton != null)
+            takeButton.SetActive(false);
+
+        if (phoneUIIcon != null)
+            phoneUIIcon.SetActive(false);
+    }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            takeButton.SetActive(true);
+            if (takeButton != null)
+                takeButton.SetActive(true);
         }
     }
 
@@ -16,17 +29,24 @@ public class PhonePickup : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            takeButton.SetActive(false);
+            if (takeButton != null)
+                takeButton.SetActive(false);
         }
     }
 
     public void TakePhone()
     {
         // Give player the phone
-        PlayerInventory.Instance.hasPhone = true;
+        if (PlayerInventory.Instance != null)
+            PlayerInventory.Instance.hasPhone = true;
 
-        // Hide button
-        takeButton.SetActive(false);
+        // Hide take button
+        if (takeButton != null)
+            takeButton.SetActive(false);
+
+        // 🔥 Show phone icon on UI
+        if (phoneUIIcon != null)
+            phoneUIIcon.SetActive(true);
 
         // Remove phone from world
         gameObject.SetActive(false);
