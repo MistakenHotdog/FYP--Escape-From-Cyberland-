@@ -9,38 +9,54 @@ public class DoorScannerTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && !isCompleted)
+        if (!other.CompareTag("Player")) return;
+
+        if (isCompleted) return;
+
+        // 🔥 Check if player has phone
+        if (PlayerInventory.Instance != null && PlayerInventory.Instance.hasPhone)
         {
             hackButton.SetActive(true);
+        }
+        else
+        {
+            Debug.Log("❌ You need a phone to hack!");
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            hackButton.SetActive(false);
-        }
+        if (!other.CompareTag("Player")) return;
+
+        hackButton.SetActive(false);
     }
 
     public void StartHack()
     {
         if (isCompleted) return;
 
+        // 🔥 Double check phone requirement
+        if (PlayerInventory.Instance == null || !PlayerInventory.Instance.hasPhone)
+        {
+            Debug.Log("❌ Cannot hack without phone!");
+            return;
+        }
+
         hackButton.SetActive(false);
         puzzle.OpenPuzzle();
     }
 
-    // 🔥 Called when puzzle is solved
+    // 🔥 Called after puzzle success
     public void MarkCompleted()
     {
         isCompleted = true;
 
-        // Make sure button is hidden forever
         if (hackButton != null)
             hackButton.SetActive(false);
 
-        // OPTIONAL: disable trigger completely
-        GetComponent<Collider>().enabled = false;
+        // Optional: disable trigger completely
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+            col.enabled = false;
     }
 }
