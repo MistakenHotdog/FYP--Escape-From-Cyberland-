@@ -35,6 +35,7 @@ public class PlayerMove : MonoBehaviour
             cam = Camera.main.transform;
 
         rb.constraints = RigidbodyConstraints.FreezeRotation;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
     void Start()
