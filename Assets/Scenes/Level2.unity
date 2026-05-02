@@ -4305,6 +4305,34 @@ PrefabInstance:
       propertyPath: m_Name
       value: Door_Frame (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 4038894316759800132, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+      propertyPath: m_Size.x
+      value: 6.4923534
+      objectReference: {fileID: 0}
+    - target: {fileID: 4038894316759800132, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+      propertyPath: m_Size.y
+      value: 13.71082
+      objectReference: {fileID: 0}
+    - target: {fileID: 4038894316759800132, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+      propertyPath: m_Center.x
+      value: 2.588825
+      objectReference: {fileID: 0}
+    - target: {fileID: 4038894316759800132, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+      propertyPath: m_Center.y
+      value: 3.2103949
+      objectReference: {fileID: 0}
+    - target: {fileID: 4038894316759800132, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+      propertyPath: m_Center.z
+      value: 0.26559857
+      objectReference: {fileID: 0}
+    - target: {fileID: 4038894316759800132, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4893788924321632249, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+      propertyPath: m_Name
+      value: DoorBlocker
+      objectReference: {fileID: 0}
     - target: {fileID: 8510152502876185450, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
       propertyPath: m_LocalPosition.x
       value: 370.8
@@ -4345,10 +4373,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8257168848312919739, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1227769561080549493, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2018091071}
   m_SourcePrefab: {fileID: 100100000, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
 --- !u!4 &330521798 stripped
 Transform:
@@ -6154,6 +6186,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3193946160588618884, guid: 4ab19bfbeb9048a45a44b9ce3847f750, type: 3}
   m_PrefabInstance: {fileID: 518244586}
   m_PrefabAsset: {fileID: 0}
+--- !u!65 &524393693 stripped
+BoxCollider:
+  m_CorrespondingSourceObject: {fileID: 4038894316759800132, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+  m_PrefabInstance: {fileID: 330521797}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &534728188
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7157,10 +7194,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 183799754500841428, guid: 75087ca99ecc4264ab937b89c140d230, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2074701171}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 75087ca99ecc4264ab937b89c140d230, type: 3}
 --- !u!4 &624162900 stripped
 Transform:
@@ -10443,11 +10477,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b9a305e18de0c04dbd257a21cd47087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!65 &814413975 stripped
-BoxCollider:
-  m_CorrespondingSourceObject: {fileID: 4038894316759800132, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
-  m_PrefabInstance: {fileID: 983180073}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &814455105
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12356,10 +12385,7 @@ PrefabInstance:
     - {fileID: 8257168848312919739, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1227769561080549493, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1619751214}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
 --- !u!4 &983180074 stripped
 Transform:
@@ -13653,6 +13679,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1049765218}
   - component: {fileID: 1049765217}
+  - component: {fileID: 1049765219}
   m_Layer: 0
   m_Name: QuizScannerTrigger
   m_TagString: Untagged
@@ -13690,12 +13717,26 @@ Transform:
   m_GameObject: {fileID: 1049765216}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 457.57, y: 0.9, z: -130}
+  m_LocalPosition: {x: 377.07, y: 0.9, z: 118.19}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1049765219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1049765216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b319d8741b93ea4db95bd91f7919fd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hackButton: {fileID: 1675068634}
+  quizPuzzle: {fileID: 1399569470}
 --- !u!1001 &1056227659
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19384,7 +19425,8 @@ MonoBehaviour:
   - {fileID: 1143658081}
   nextButton: {fileID: 1244529014}
   nextButtonText: {fileID: 1706594691}
-  door: {fileID: 1619751214}
+  door: {fileID: 2018091071}
+  scanner: {fileID: 0}
 --- !u!4 &1399569471
 Transform:
   m_ObjectHideFlags: 0
@@ -22244,30 +22286,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!1 &1619751208 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1227769561080549493, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
-  m_PrefabInstance: {fileID: 983180073}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &1619751209 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 4950166599130038349, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
-  m_PrefabInstance: {fileID: 983180073}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1619751214
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1619751208}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e895b81ca25aba47908e818f3508e29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 1619751209}
-  doorBlockCollider: {fileID: 814413975}
 --- !u!1001 &1623572175
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22684,7 +22702,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2097786844580114077, guid: a589f15c5c39b854c84d4012870c9e71, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 478.1
+      value: 393.1
       objectReference: {fileID: 0}
     - target: {fileID: 2097786844580114077, guid: a589f15c5c39b854c84d4012870c9e71, type: 3}
       propertyPath: m_LocalPosition.y
@@ -22692,7 +22710,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2097786844580114077, guid: a589f15c5c39b854c84d4012870c9e71, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -156.9
+      value: 129.7
       objectReference: {fileID: 0}
     - target: {fileID: 2097786844580114077, guid: a589f15c5c39b854c84d4012870c9e71, type: 3}
       propertyPath: m_LocalRotation.w
@@ -23043,7 +23061,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2074701171}
+      - m_Target: {fileID: 1049765219}
         m_TargetAssemblyTypeName: QuizDoorScannerTrigger, Assembly-CSharp
         m_MethodName: StartHack
         m_Mode: 1
@@ -28318,6 +28336,30 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &2018091070 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1227769561080549493, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+  m_PrefabInstance: {fileID: 330521797}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2018091071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018091070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e895b81ca25aba47908e818f3508e29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 2018091072}
+  doorBlockCollider: {fileID: 524393693}
+--- !u!95 &2018091072 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 4950166599130038349, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+  m_PrefabInstance: {fileID: 330521797}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2027039944
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29378,28 +29420,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6198975063232573576, guid: 0e16475e464050141a1bf64d51b46d48, type: 3}
   m_PrefabInstance: {fileID: 2073097556}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2074701167 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 183799754500841428, guid: 75087ca99ecc4264ab937b89c140d230, type: 3}
-  m_PrefabInstance: {fileID: 624162899}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2074701171
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2074701167}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b319d8741b93ea4db95bd91f7919fd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 582710263}
-  triggerZone: {fileID: 1049765217}
-  hackButton: {fileID: 1675068634}
-  quizPuzzle: {fileID: 1399569470}
-  requirePhone: 0
 --- !u!1 &2075815381
 GameObject:
   m_ObjectHideFlags: 0

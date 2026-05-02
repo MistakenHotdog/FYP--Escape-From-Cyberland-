@@ -2,57 +2,24 @@
 
 public class QuizDoorScannerTrigger : MonoBehaviour
 {
-    [Header("References")]
-    public GameObject player;
-    public Collider triggerZone;
     public GameObject hackButton;
     public QuizPuzzleManager quizPuzzle;
 
-    [Header("Settings")]
-    public bool requirePhone = true;
-
     private bool isCompleted = false;
-    private bool playerInside = false;
 
-    void Update()
+    private void OnTriggerEnter(Collider other)
     {
-        if (isCompleted || player == null || triggerZone == null)
-            return;
-
-        Collider playerCol = player.GetComponent<Collider>();
-
-        if (playerCol != null && triggerZone.bounds.Intersects(playerCol.bounds))
-        {
-            if (!playerInside)
-            {
-                playerInside = true;
-                OnPlayerEnter();
-            }
-        }
-        else
-        {
-            if (playerInside)
-            {
-                playerInside = false;
-                OnPlayerExit();
-            }
-        }
-    }
-
-    void OnPlayerEnter()
-    {
-        if (requirePhone && (PlayerInventory.Instance == null || !PlayerInventory.Instance.hasPhone))
-        {
-            Debug.Log("❌ You need a phone to hack!");
-            return;
-        }
+        if (!other.CompareTag("Player")) return;
+        if (isCompleted) return;
 
         if (hackButton != null)
             hackButton.SetActive(true);
     }
 
-    void OnPlayerExit()
+    private void OnTriggerExit(Collider other)
     {
+        if (!other.CompareTag("Player")) return;
+
         if (hackButton != null)
             hackButton.SetActive(false);
     }
@@ -60,12 +27,6 @@ public class QuizDoorScannerTrigger : MonoBehaviour
     public void StartHack()
     {
         if (isCompleted) return;
-
-        if (requirePhone && (PlayerInventory.Instance == null || !PlayerInventory.Instance.hasPhone))
-        {
-            Debug.Log("❌ Cannot hack without phone!");
-            return;
-        }
 
         if (hackButton != null)
             hackButton.SetActive(false);
@@ -81,7 +42,8 @@ public class QuizDoorScannerTrigger : MonoBehaviour
         if (hackButton != null)
             hackButton.SetActive(false);
 
-        if (triggerZone != null)
-            triggerZone.enabled = false;
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+            col.enabled = false;
     }
 }
