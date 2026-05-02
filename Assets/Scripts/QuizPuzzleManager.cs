@@ -59,6 +59,12 @@ public class QuizPuzzleManager : MonoBehaviour
     {
         selectedAnswer = -1;
 
+        // 🔥 RESET COLORS (THIS FIXES YOUR ISSUE)
+        for (int i = 0; i < answerButtons.Length; i++)
+        {
+            answerButtons[i].image.color = Color.white;
+        }
+
         questionText.text = questions[currentQuestion];
         progressText.text = (currentQuestion + 1) + "/3";
 
