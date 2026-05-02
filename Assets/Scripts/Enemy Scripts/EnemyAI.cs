@@ -4,12 +4,13 @@ using UnityEngine.AI;
 
 public class EnemyAI : MonoBehaviour
 {
-    public Transform patrolPointA;
-    public Transform patrolPointB;
+    // 🔥 CHANGED HERE
+    public Transform[] patrolPoints;
+
     public string playerTag = "Player";
 
     [Header("Movement")]
-    public float walkSpeed = 2f;
+    public float walkSpeed = 5f;
     public float runSpeed = 4.5f;
 
     [Header("Detection")]
@@ -44,8 +45,7 @@ public class EnemyAI : MonoBehaviour
     private enum AIState { Patrol, Approach, Shooting }
     private AIState state = AIState.Patrol;
 
-    private Transform currentPatrolTarget;
-    private bool patrollingForward = true;
+    private int currentPatrolIndex = 0; // 🔥 NEW
     private float lastFireTime = 0f;
     private bool isWaitingAtPoint = false;
     private Coroutine patrolCoroutine;
@@ -60,7 +60,6 @@ public class EnemyAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
 
-        // 🔊 Setup AudioSource
         if (shootAudioSource == null)
         {
             shootAudioSource = GetComponent<AudioSource>();
@@ -74,22 +73,14 @@ public class EnemyAI : MonoBehaviour
 
     void Start()
     {
-        if (agent == null || animator == null)
-        {
-            Debug.LogWarning($"[EnemyAI] {name}: Missing NavMeshAgent or Animator.");
-            enabled = false;
-            return;
-        }
-
         GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
         if (playerObj != null) player = playerObj.transform;
 
-        currentPatrolTarget = patrolPointA;
-
-        if (currentPatrolTarget != null)
+        // 🔥 START PATROL
+        if (patrolPoints.Length > 0)
         {
             agent.speed = walkSpeed;
-            agent.SetDestination(currentPatrolTarget.position);
+            agent.SetDestination(patrolPoints[currentPatrolIndex].position);
         }
     }
 
@@ -102,10 +93,7 @@ public class EnemyAI : MonoBehaviour
 
         if (distToPlayer <= currentDetectionRange && HasLineOfSightToPlayer())
         {
-            if (distToPlayer > shootRange)
-                state = AIState.Approach;
-            else
-                state = AIState.Shooting;
+            state = (distToPlayer > shootRange) ? AIState.Approach : AIState.Shooting;
         }
         else
         {
@@ -130,32 +118,11 @@ public class EnemyAI : MonoBehaviour
         animator.SetFloat(ANIM_SPEED, agent.velocity.magnitude);
     }
 
-    // ---------------- LINE OF SIGHT ----------------
-    bool HasLineOfSightToPlayer()
-    {
-        Vector3 origin = transform.position + Vector3.up * 1.5f;
-        Vector3 target = player.position + Vector3.up;
-        Vector3 dir = target - origin;
-
-        if (Physics.Raycast(origin, dir.normalized, out RaycastHit hit, dir.magnitude))
-        {
-            return hit.collider.CompareTag(playerTag);
-        }
-
-        return true;
-    }
-
-    // ---------------- ALERT ----------------
-    public void SetAlert(bool alert)
-    {
-        isAlerted = alert;
-        if (agent != null)
-            agent.speed = alert ? runSpeed : walkSpeed;
-    }
-
     // ---------------- PATROL ----------------
     void HandlePatrol()
     {
+        if (patrolPoints.Length == 0) return;
+
         animator.SetBool(ANIM_IS_SHOOTING, false);
         agent.isStopped = false;
         agent.stoppingDistance = 0f;
@@ -179,15 +146,13 @@ public class EnemyAI : MonoBehaviour
         yield return new WaitForSeconds(idleTimeAtPatrolPoint);
 
         animator.SetTrigger(ANIM_TURN_TRIGGER);
-
         yield return new WaitForSeconds(0.5f);
 
-        patrollingForward = !patrollingForward;
-        currentPatrolTarget = patrollingForward ? patrolPointA : patrolPointB;
+        // 🔥 MOVE TO NEXT POINT
+        currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
 
         agent.isStopped = false;
-        if (currentPatrolTarget != null)
-            agent.SetDestination(currentPatrolTarget.position);
+        agent.SetDestination(patrolPoints[currentPatrolIndex].position);
 
         isWaitingAtPoint = false;
         patrolCoroutine = null;
@@ -243,10 +208,8 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // 🔫 BULLET SHOOTING
     IEnumerator FireSingleShot()
     {
-        // 🔊 SOUND
         if (shootAudioSource != null && shootSound != null)
         {
             shootAudioSource.pitch = Random.Range(0.9f, 1.1f);
@@ -257,15 +220,31 @@ public class EnemyAI : MonoBehaviour
 
         if (bulletPrefab != null && firePoint != null)
         {
-            // Aim bullet toward player
-            Vector3 targetPos = player.position + Vector3.up * 1.2f;
-            Quaternion rot = Quaternion.LookRotation(targetPos - firePoint.position);
-
-            GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-
-            // FORCE direction toward player
             Vector3 direction = (player.position + Vector3.up - firePoint.position).normalized;
+            GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
             bullet.transform.forward = direction;
         }
+    }
+
+    // ---------------- LINE OF SIGHT ----------------
+    bool HasLineOfSightToPlayer()
+    {
+        Vector3 origin = transform.position + Vector3.up * 1.5f;
+        Vector3 target = player.position + Vector3.up;
+        Vector3 dir = target - origin;
+
+        if (Physics.Raycast(origin, dir.normalized, out RaycastHit hit, dir.magnitude))
+        {
+            return hit.collider.CompareTag(playerTag);
+        }
+
+        return true;
+    }
+
+    public void SetAlert(bool alert)
+    {
+        isAlerted = alert;
+        if (agent != null)
+            agent.speed = alert ? runSpeed : walkSpeed;
     }
 }
