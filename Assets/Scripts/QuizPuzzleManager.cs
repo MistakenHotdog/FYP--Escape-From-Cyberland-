@@ -25,7 +25,6 @@ public class QuizPuzzleManager : MonoBehaviour
     private int score = 0;
     private int selectedAnswer = -1;
 
-    // QUESTIONS
     private string[] questions =
     {
         "What is two-factor authentication (2FA)?",
@@ -42,7 +41,6 @@ public class QuizPuzzleManager : MonoBehaviour
 
     private int[] correctAnswers = { 0, 0, 0 };
 
-    // ---------------- OPEN ----------------
     public void OpenPuzzle()
     {
         panel.SetActive(true);
@@ -54,12 +52,11 @@ public class QuizPuzzleManager : MonoBehaviour
         LoadQuestion();
     }
 
-    // ---------------- LOAD QUESTION ----------------
     void LoadQuestion()
     {
         selectedAnswer = -1;
 
-        // 🔥 RESET COLORS (THIS FIXES YOUR ISSUE)
+        // 🔥 Reset button colors
         for (int i = 0; i < answerButtons.Length; i++)
         {
             answerButtons[i].image.color = Color.white;
@@ -77,27 +74,20 @@ public class QuizPuzzleManager : MonoBehaviour
             answerButtons[i].onClick.AddListener(() => SelectAnswer(index));
         }
 
-        if (currentQuestion == questions.Length - 1)
-            nextButtonText.text = "Done";
-        else
-            nextButtonText.text = "Next";
+        nextButtonText.text = (currentQuestion == questions.Length - 1) ? "Done" : "Next";
     }
 
-    // ---------------- SELECT ANSWER ----------------
     public void SelectAnswer(int index)
     {
         selectedAnswer = index;
 
-        Debug.Log("Selected: " + index);
-
-        // OPTIONAL highlight
+        // Highlight selection
         for (int i = 0; i < answerButtons.Length; i++)
         {
             answerButtons[i].image.color = (i == index) ? Color.green : Color.white;
         }
     }
 
-    // ---------------- NEXT ----------------
     public void Next()
     {
         if (selectedAnswer == -1)
@@ -121,7 +111,6 @@ public class QuizPuzzleManager : MonoBehaviour
         }
     }
 
-    // ---------------- FINISH ----------------
     void FinishQuiz()
     {
         panel.SetActive(false);
@@ -134,7 +123,7 @@ public class QuizPuzzleManager : MonoBehaviour
             if (door != null)
                 door.OpenDoor();
 
-            // 🔥 Disable scanner + hack button
+            // 🔥 Disable scanner permanently
             if (scanner != null)
                 scanner.MarkCompleted();
         }
