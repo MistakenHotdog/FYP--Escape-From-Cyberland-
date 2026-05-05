@@ -19922,7 +19922,7 @@ MonoBehaviour:
   nextButton: {fileID: 1244529014}
   nextButtonText: {fileID: 1706594691}
   door: {fileID: 2018091071}
-  scanner: {fileID: 0}
+  scanner: {fileID: 1049765219}
 --- !u!4 &1399569471
 Transform:
   m_ObjectHideFlags: 0
