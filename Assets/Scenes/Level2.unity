@@ -1754,6 +1754,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4924130287515698, guid: ba75f6548b81ad440be3522e8695d23c, type: 3}
   m_PrefabInstance: {fileID: 103688790}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &131480081 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1227769561080549493, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+  m_PrefabInstance: {fileID: 983180073}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &138847471
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11228,6 +11233,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 837444665}
   m_CullTransparentMesh: 1
+--- !u!65 &843910062 stripped
+BoxCollider:
+  m_CorrespondingSourceObject: {fileID: 4038894316759800132, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+  m_PrefabInstance: {fileID: 983180073}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &844233734
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12824,11 +12834,33 @@ PrefabInstance:
     - {fileID: 8257168848312919739, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1227769561080549493, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 983180075}
   m_SourcePrefab: {fileID: 100100000, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
 --- !u!4 &983180074 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8510152502876185450, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
+  m_PrefabInstance: {fileID: 983180073}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &983180075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 131480081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e895b81ca25aba47908e818f3508e29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 983180076}
+  doorBlockCollider: {fileID: 843910062}
+--- !u!95 &983180076 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 4950166599130038349, guid: 95c3cfc3f1175a748970b91127eb8c33, type: 3}
   m_PrefabInstance: {fileID: 983180073}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &984537779
@@ -17384,6 +17416,75 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4803463093519170, guid: 0150c0006494bd84198ac13cd4d0d7f5, type: 3}
   m_PrefabInstance: {fileID: 1247784407}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1252384139
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1252384142}
+  - component: {fileID: 1252384141}
+  - component: {fileID: 1252384140}
+  m_Layer: 0
+  m_Name: KeycardScannerTrigger (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1252384140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1252384139}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4713e23aad5a6042841f60b560a2c58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scanButton: {fileID: 1601439823}
+  door: {fileID: 983180075}
+  requiredKeycardID: Level2Card
+--- !u!65 &1252384141
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1252384139}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 6.56, y: 4.07, z: 8.4}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &1252384142
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1252384139}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 456.12, y: 2.24, z: -130.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1257307541
 GameObject:
   m_ObjectHideFlags: 0
@@ -22219,6 +22320,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1252384140}
+        m_TargetAssemblyTypeName: KeycardScannerTrigger, Assembly-CSharp
+        m_MethodName: ScanCard
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1601439826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23331,7 +23444,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2097786844580114077, guid: a589f15c5c39b854c84d4012870c9e71, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 393.1
+      value: 386.12
       objectReference: {fileID: 0}
     - target: {fileID: 2097786844580114077, guid: a589f15c5c39b854c84d4012870c9e71, type: 3}
       propertyPath: m_LocalPosition.y
@@ -23339,7 +23452,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2097786844580114077, guid: a589f15c5c39b854c84d4012870c9e71, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 129.7
+      value: 127.33
       objectReference: {fileID: 0}
     - target: {fileID: 2097786844580114077, guid: a589f15c5c39b854c84d4012870c9e71, type: 3}
       propertyPath: m_LocalRotation.w
@@ -31307,3 +31420,4 @@ SceneRoots:
   - {fileID: 1399569471}
   - {fileID: 1049765218}
   - {fileID: 811702373}
+  - {fileID: 1252384142}
