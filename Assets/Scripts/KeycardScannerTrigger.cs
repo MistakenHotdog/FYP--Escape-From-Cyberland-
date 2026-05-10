@@ -4,7 +4,6 @@ public class KeycardScannerTrigger : MonoBehaviour
 {
     public GameObject scanButton;
     public DoorController door;
-    public string requiredKeycardID = "Level2Card";
 
     private bool playerNearby = false;
     private bool isUnlocked = false;
@@ -35,7 +34,7 @@ public class KeycardScannerTrigger : MonoBehaviour
         if (!playerNearby || isUnlocked) return;
 
         if (PlayerInventory.Instance != null &&
-            PlayerInventory.Instance.HasKeycard(requiredKeycardID))
+            PlayerInventory.Instance.hasLevel2Keycard)
         {
             Debug.Log("✅ Access Granted");
 

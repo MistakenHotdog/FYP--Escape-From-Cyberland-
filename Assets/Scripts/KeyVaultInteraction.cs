@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public class ServerPCInteraction : MonoBehaviour
+public class KeyVaultInteraction : MonoBehaviour
 {
     public GameObject useButton;
-    public ServerRoomPC serverPC;
+    public KeyVaultPC vaultPC;
 
     private bool completed = false;
 
@@ -24,15 +24,15 @@ public class ServerPCInteraction : MonoBehaviour
             useButton.SetActive(false);
     }
 
-    public void UsePC()
+    public void UseVault()
     {
         if (completed) return;
 
         if (useButton != null)
             useButton.SetActive(false);
 
-        if (serverPC != null)
-            serverPC.OpenPC();
+        if (vaultPC != null)
+            vaultPC.OpenVault();
     }
 
     public void MarkCompleted()
