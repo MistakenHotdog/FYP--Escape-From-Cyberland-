@@ -2,7 +2,6 @@
 
 public class KeycardPickup : MonoBehaviour
 {
-    public string keycardID = "Level2Card";
     public GameObject takeButton;
 
     private bool playerNearby = false;
@@ -38,13 +37,13 @@ public class KeycardPickup : MonoBehaviour
         if (!playerNearby) return;
 
         if (PlayerInventory.Instance != null)
-            PlayerInventory.Instance.AddKeycard(keycardID);
+            PlayerInventory.Instance.hasLevel2Keycard = true;
 
         if (takeButton != null)
             takeButton.SetActive(false);
 
         gameObject.SetActive(false);
 
-        Debug.Log("🪪 Card Picked!");
+        Debug.Log("🪪 Level 2 Keycard Collected!");
     }
 }

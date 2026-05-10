@@ -1,28 +1,20 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
     public static PlayerInventory Instance;
 
+    [Header("Devices")]
     public bool hasPhone = false;
 
-    // 🔥 KEYCARDS
-    private HashSet<string> keycards = new HashSet<string>();
+    [Header("Encryption")]
+    public bool hasEncryptionKey = false;
+
+    [Header("Keycards")]
+    public bool hasLevel2Keycard = false;
 
     private void Awake()
     {
         Instance = this;
-    }
-
-    public void AddKeycard(string id)
-    {
-        keycards.Add(id);
-        Debug.Log("🪪 Keycard collected: " + id);
-    }
-
-    public bool HasKeycard(string id)
-    {
-        return keycards.Contains(id);
     }
 }
