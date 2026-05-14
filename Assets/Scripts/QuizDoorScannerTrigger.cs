@@ -5,15 +5,21 @@ public class QuizDoorScannerTrigger : MonoBehaviour
     [Header("UI")]
     public GameObject hackButton;
 
-    [Header("Puzzle")]
+    [Header("Quiz")]
     public QuizPuzzleManager quizPuzzle;
 
     private bool isCompleted = false;
 
+    private void Start()
+    {
+        if (hackButton != null)
+            hackButton.SetActive(false);
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-        if (isCompleted) return; // 🔥 prevents button from showing again
+        if (isCompleted) return;
 
         if (hackButton != null)
             hackButton.SetActive(true);
@@ -27,6 +33,7 @@ public class QuizDoorScannerTrigger : MonoBehaviour
             hackButton.SetActive(false);
     }
 
+    // 🔥 Called by Hack Button
     public void StartHack()
     {
         if (isCompleted) return;
@@ -38,7 +45,7 @@ public class QuizDoorScannerTrigger : MonoBehaviour
             quizPuzzle.OpenPuzzle();
     }
 
-    // 🔥 Called after successful puzzle
+    // 🔥 Called after successful quiz
     public void MarkCompleted()
     {
         isCompleted = true;
@@ -46,8 +53,9 @@ public class QuizDoorScannerTrigger : MonoBehaviour
         if (hackButton != null)
             hackButton.SetActive(false);
 
-        // Disable trigger completely
+        // Disable trigger forever
         Collider col = GetComponent<Collider>();
+
         if (col != null)
             col.enabled = false;
     }

@@ -1,19 +1,9 @@
 ﻿using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
 
 public class QuizPuzzleManager : MonoBehaviour
 {
-    [Header("UI")]
-    public GameObject panel;
-    public TMP_Text questionText;
-    public TMP_Text progressText;
-
-    public Button[] answerButtons;
-    public TMP_Text[] answerTexts;
-
-    public Button nextButton;
-    public TMP_Text nextButtonText;
+    [Header("Question Panels")]
+    public GameObject[] questionPanels;
 
     [Header("Door")]
     public DoorController door;
@@ -23,113 +13,132 @@ public class QuizPuzzleManager : MonoBehaviour
 
     private int currentQuestion = 0;
     private int score = 0;
-    private int selectedAnswer = -1;
+    private bool answered = false;
 
-    private string[] questions =
+    private void Start()
     {
-        "What is two-factor authentication (2FA)?",
-        "What is a VPN used for?",
-        "What is a secure network?"
-    };
+        // Hide all panels at start
+        for (int i = 0; i < questionPanels.Length; i++)
+        {
+            if (questionPanels[i] != null)
+            {
+                questionPanels[i].SetActive(false);
+            }
+        }
+    }
 
-    private string[,] answers =
-    {
-        { "Using two methods to verify identity", "Using two passwords", "Logging in twice" },
-        { "Encrypting your internet connection", "Speeding up your device", "Blocking viruses" },
-        { "A protected and encrypted connection", "Public Wi-Fi", "Any internet connection" }
-    };
-
-    private int[] correctAnswers = { 0, 0, 0 };
-
+    // 🔥 OPEN QUIZ
     public void OpenPuzzle()
     {
-        panel.SetActive(true);
-        Time.timeScale = 0f;
+        Debug.Log("QUIZ OPENED");
 
         currentQuestion = 0;
         score = 0;
+        answered = false;
 
-        LoadQuestion();
-    }
+        // Pause gameplay
+        Time.timeScale = 0f;
 
-    void LoadQuestion()
-    {
-        selectedAnswer = -1;
-
-        // 🔥 Reset button colors
-        for (int i = 0; i < answerButtons.Length; i++)
+        // Hide all first
+        for (int i = 0; i < questionPanels.Length; i++)
         {
-            answerButtons[i].image.color = Color.white;
+            if (questionPanels[i] != null)
+            {
+                questionPanels[i].SetActive(false);
+            }
         }
 
-        questionText.text = questions[currentQuestion];
-        progressText.text = (currentQuestion + 1) + "/3";
-
-        for (int i = 0; i < 3; i++)
+        // Show first question
+        if (questionPanels.Length > 0)
         {
-            answerTexts[i].text = answers[currentQuestion, i];
-
-            int index = i;
-            answerButtons[i].onClick.RemoveAllListeners();
-            answerButtons[i].onClick.AddListener(() => SelectAnswer(index));
-        }
-
-        nextButtonText.text = (currentQuestion == questions.Length - 1) ? "Done" : "Next";
-    }
-
-    public void SelectAnswer(int index)
-    {
-        selectedAnswer = index;
-
-        // Highlight selection
-        for (int i = 0; i < answerButtons.Length; i++)
-        {
-            answerButtons[i].image.color = (i == index) ? Color.green : Color.white;
+            questionPanels[0].SetActive(true);
         }
     }
 
-    public void Next()
+    // 🔥 ANSWER BUTTON CLICK
+    public void SelectAnswer(bool correct)
     {
-        if (selectedAnswer == -1)
-        {
-            Debug.Log("❗ Select an answer first!");
-            return;
-        }
+        // Prevent double clicks
+        if (answered) return;
 
-        if (selectedAnswer == correctAnswers[currentQuestion])
+        answered = true;
+
+        if (correct)
+        {
             score++;
+            Debug.Log("✅ Correct Answer");
+        }
+        else
+        {
+            Debug.Log("❌ Wrong Answer");
+        }
+
+        // Go instantly to next question
+        NextQuestion();
+    }
+
+    // 🔥 NEXT QUESTION
+    void NextQuestion()
+    {
+        // Hide current question
+        if (questionPanels[currentQuestion] != null)
+        {
+            questionPanels[currentQuestion].SetActive(false);
+        }
 
         currentQuestion++;
 
-        if (currentQuestion >= questions.Length)
+        // Finished all questions
+        if (currentQuestion >= questionPanels.Length)
         {
             FinishQuiz();
+            return;
         }
-        else
+
+        // Show next question
+        if (questionPanels[currentQuestion] != null)
         {
-            LoadQuestion();
+            questionPanels[currentQuestion].SetActive(true);
         }
+
+        answered = false;
     }
 
+    // 🔥 FINISH QUIZ
     void FinishQuiz()
     {
-        panel.SetActive(false);
+        // Resume gameplay
         Time.timeScale = 1f;
 
-        if (score == questions.Length)
+        // Hide all panels
+        for (int i = 0; i < questionPanels.Length; i++)
         {
-            Debug.Log("✅ All correct!");
+            if (questionPanels[i] != null)
+            {
+                questionPanels[i].SetActive(false);
+            }
+        }
 
+        // PASS
+        if (score >= 3)
+        {
+            Debug.Log("✅ QUIZ PASSED");
+
+            // Open door
             if (door != null)
+            {
                 door.OpenDoor();
+            }
 
-            // 🔥 Disable scanner permanently
+            // Disable scanner forever
             if (scanner != null)
+            {
                 scanner.MarkCompleted();
+            }
         }
         else
         {
-            Debug.Log("❌ Try Again!");
+            Debug.Log("❌ QUIZ FAILED");
         }
     }
 }
