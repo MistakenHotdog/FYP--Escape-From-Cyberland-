@@ -3,9 +3,16 @@ using TMPro;
 
 public class ServerRoomPC : MonoBehaviour
 {
-    [Header("UI")]
+    [Header("Main Panel")]
     public GameObject pcPanel;
-    public TMP_Text messageText;
+
+    [Header("Screens")]
+    public GameObject enterKeyScreen;
+    public GameObject accessDeniedScreen;
+    public GameObject invalidKeyScreen;
+    public GameObject successScreen;
+
+    [Header("Input")]
     public TMP_InputField keyInput;
 
     [Header("Door")]
@@ -14,53 +21,56 @@ public class ServerRoomPC : MonoBehaviour
     [Header("Interaction")]
     public ServerPCInteraction interactionTrigger;
 
+    [Header("Unlock")]
+    public GameObject keyVaultTrigger;
+
     private string correctKey = "CYBERLAND_KEY";
 
-    // 🔥 OPEN PANEL
+    // 🔥 OPEN TERMINAL
     public void OpenPC()
     {
         pcPanel.SetActive(true);
 
-        // Pause gameplay
         Time.timeScale = 0f;
 
-        if (!PlayerInventory.Instance.hasEncryptionKey)
+        HideAllScreens();
+
+        // Unlock Key Vault
+        if (keyVaultTrigger != null)
         {
-            messageText.text =
-                "MAINFRAME TERMINAL\n\n" +
-                "ACCESS DENIED ❌\n\n" +
-                "Encryption Key Required: CYBERLAND_MASTER_KEY\n" +
-                "Key not found in local storage.\n\n" +
-                "Retrieve key from:\nKEY VAULT TERMINAL (Sector B)";
+            keyVaultTrigger.SetActive(true);
         }
-        else
-        {
-            messageText.text =
-                "MAINFRAME TERMINAL\n\n" +
-                "Enter Encryption Key:";
-        }
+
+        // Show enter key screen only
+        enterKeyScreen.SetActive(true);
     }
 
     // 🔥 SUBMIT KEY
     public void SubmitKey()
     {
-        if (keyInput.text == correctKey)
+        HideAllScreens();
+
+        // ✅ Correct key
+        if (keyInput.text.ToUpper() == correctKey)
         {
-            messageText.text =
-                "KEY ACCEPTED ✅\n\n" +
-                "MAINFRAME ACCESS GRANTED\n" +
-                "Server Room Door Unlocked...";
+            successScreen.SetActive(true);
 
             if (serverDoor != null)
+            {
                 serverDoor.OpenDoor();
+            }
 
-            // Disable interaction forever
+            // Disable future interaction
             if (interactionTrigger != null)
+            {
                 interactionTrigger.MarkCompleted();
+            }
         }
         else
         {
-            messageText.text = "❌ INVALID KEY";
+            // ❌ Wrong key
+            accessDeniedScreen.SetActive(true);
+            invalidKeyScreen.SetActive(true);
         }
     }
 
@@ -69,7 +79,17 @@ public class ServerRoomPC : MonoBehaviour
     {
         pcPanel.SetActive(false);
 
-        // Resume gameplay
         Time.timeScale = 1f;
+
+        HideAllScreens();
+    }
+
+    // 🔥 HIDE ALL SCREENS
+    void HideAllScreens()
+    {
+        enterKeyScreen.SetActive(false);
+        accessDeniedScreen.SetActive(false);
+        invalidKeyScreen.SetActive(false);
+        successScreen.SetActive(false);
     }
 }
