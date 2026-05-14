@@ -17,10 +17,13 @@ public class QuizPuzzleManager : MonoBehaviour
 
     private void Start()
     {
-        // Hide all at start
+        // Hide all panels at start
         for (int i = 0; i < questionPanels.Length; i++)
         {
-            questionPanels[i].SetActive(false);
+            if (questionPanels[i] != null)
+            {
+                questionPanels[i].SetActive(false);
+            }
         }
     }
 
@@ -33,15 +36,29 @@ public class QuizPuzzleManager : MonoBehaviour
         score = 0;
         answered = false;
 
+        // Pause gameplay
         Time.timeScale = 0f;
 
-        // 🔥 FORCE FIRST QUESTION
-        questionPanels[0].SetActive(true);
+        // Hide all first
+        for (int i = 0; i < questionPanels.Length; i++)
+        {
+            if (questionPanels[i] != null)
+            {
+                questionPanels[i].SetActive(false);
+            }
+        }
+
+        // Show first question
+        if (questionPanels.Length > 0)
+        {
+            questionPanels[0].SetActive(true);
+        }
     }
 
-    // 🔥 ANSWER SELECTED
+    // 🔥 ANSWER BUTTON CLICK
     public void SelectAnswer(bool correct)
     {
+        // Prevent double clicks
         if (answered) return;
 
         answered = true;
@@ -49,57 +66,79 @@ public class QuizPuzzleManager : MonoBehaviour
         if (correct)
         {
             score++;
-            Debug.Log("CORRECT");
+            Debug.Log("✅ Correct Answer");
         }
         else
         {
-            Debug.Log("WRONG");
+            Debug.Log("❌ Wrong Answer");
         }
 
-        Invoke(nameof(NextQuestion), 0.2f);
+        // Go instantly to next question
+        NextQuestion();
     }
 
     // 🔥 NEXT QUESTION
     void NextQuestion()
     {
-        questionPanels[currentQuestion].SetActive(false);
+        // Hide current question
+        if (questionPanels[currentQuestion] != null)
+        {
+            questionPanels[currentQuestion].SetActive(false);
+        }
 
         currentQuestion++;
 
+        // Finished all questions
         if (currentQuestion >= questionPanels.Length)
         {
             FinishQuiz();
             return;
         }
 
-        questionPanels[currentQuestion].SetActive(true);
+        // Show next question
+        if (questionPanels[currentQuestion] != null)
+        {
+            questionPanels[currentQuestion].SetActive(true);
+        }
 
         answered = false;
     }
 
-    // 🔥 FINISH
+    // 🔥 FINISH QUIZ
     void FinishQuiz()
     {
+        // Resume gameplay
         Time.timeScale = 1f;
 
-        foreach (GameObject panel in questionPanels)
+        // Hide all panels
+        for (int i = 0; i < questionPanels.Length; i++)
         {
-            panel.SetActive(false);
+            if (questionPanels[i] != null)
+            {
+                questionPanels[i].SetActive(false);
+            }
         }
 
+        // PASS
         if (score >= 3)
         {
-            Debug.Log("QUIZ PASSED");
+            Debug.Log("✅ QUIZ PASSED");
 
+            // Open door
             if (door != null)
+            {
                 door.OpenDoor();
+            }
 
+            // Disable scanner forever
             if (scanner != null)
+            {
                 scanner.MarkCompleted();
+            }
         }
         else
         {
-            Debug.Log("QUIZ FAILED");
+            Debug.Log("❌ QUIZ FAILED");
         }
     }
 }
