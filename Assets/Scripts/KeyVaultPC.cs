@@ -3,19 +3,24 @@ using TMPro;
 
 public class KeyVaultPC : MonoBehaviour
 {
-    [Header("UI")]
+    [Header("Main Panel")]
     public GameObject panel;
 
-    public TMP_Text outputText;
-    public TMP_InputField shiftInput;
-    public TMP_Text resultText;
+    [Header("Screens")]
+    public GameObject vaultMainScreen;
+    public GameObject decryptFailedScreen;
+    public GameObject decryptSuccessScreen;
 
-    public GameObject keyObtainedUI;
+    [Header("Input")]
+    public TMP_InputField shiftInput;
 
     [Header("Interaction")]
     public KeyVaultInteraction interactionTrigger;
 
-    // 🔥 OPEN VAULT
+    // 🔐 Correct ROT shift
+    private string correctShift = "11";
+
+    // 🔥 OPEN VAULT PANEL
     public void OpenVault()
     {
         panel.SetActive(true);
@@ -23,39 +28,44 @@ public class KeyVaultPC : MonoBehaviour
         // Pause gameplay
         Time.timeScale = 0f;
 
-        outputText.text =
-            "CYBERLAND KEY VAULT SYSTEM\n\n" +
-            "Authorized Access Only\n" +
-            "Encryption Storage: ACTIVE\n" +
-            "Key File: MASTERKEY.enc\n" +
-            "Status: ENCRYPTED 🔒\n\n" +
-            "Encrypted Output:\nNJMJWPQJ_XLJ\n\n" +
-            "Decryption Type: ROT Cipher\n\n" +
-            "Enter Shift Value:";
+        // Hide all screens first
+        HideAllScreens();
+
+        // Show main vault terminal
+        vaultMainScreen.SetActive(true);
     }
 
     // 🔥 TRY DECRYPT
     public void TryDecrypt()
     {
-        if (shiftInput.text == "11")
+        // Hide previous screens
+        HideAllScreens();
+
+        // ✅ Correct shift value
+        if (shiftInput.text == correctShift)
         {
-            resultText.text =
-                "Decryption Successful ✅\n\n" +
-                "Key Extracted: CYBERLAND_KEY\n\n" +
-                "Downloading key to inventory...";
+            decryptSuccessScreen.SetActive(true);
 
-            PlayerInventory.Instance.hasEncryptionKey = true;
+            // Give player encryption key
+            if (PlayerInventory.Instance != null)
+            {
+                PlayerInventory.Instance.hasEncryptionKey = true;
+            }
 
-            if (keyObtainedUI != null)
-                keyObtainedUI.SetActive(true);
-
-            // Disable interaction forever
+            // Disable future interaction
             if (interactionTrigger != null)
+            {
                 interactionTrigger.MarkCompleted();
+            }
+
+            Debug.Log("✅ Encryption Key Obtained");
         }
         else
         {
-            resultText.text = "❌ Incorrect Shift Value";
+            // ❌ Wrong shift value
+            decryptFailedScreen.SetActive(true);
+
+            Debug.Log("❌ Wrong Shift Value");
         }
     }
 
@@ -66,5 +76,20 @@ public class KeyVaultPC : MonoBehaviour
 
         // Resume gameplay
         Time.timeScale = 1f;
+
+        HideAllScreens();
+    }
+
+    // 🔥 HIDE ALL SCREENS
+    void HideAllScreens()
+    {
+        if (vaultMainScreen != null)
+            vaultMainScreen.SetActive(false);
+
+        if (decryptFailedScreen != null)
+            decryptFailedScreen.SetActive(false);
+
+        if (decryptSuccessScreen != null)
+            decryptSuccessScreen.SetActive(false);
     }
 }
