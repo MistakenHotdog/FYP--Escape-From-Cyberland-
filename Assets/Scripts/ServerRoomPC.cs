@@ -24,6 +24,10 @@ public class ServerRoomPC : MonoBehaviour
     [Header("Unlock")]
     public GameObject keyVaultTrigger;
 
+    [Header("Security Systems")]
+    public GameObject[] securityCameras;
+    public GameObject[] bugRobots;
+
     private string correctKey = "CYBERLAND_KEY";
 
     // 🔥 OPEN TERMINAL
@@ -31,6 +35,7 @@ public class ServerRoomPC : MonoBehaviour
     {
         pcPanel.SetActive(true);
 
+        // Pause gameplay
         Time.timeScale = 0f;
 
         HideAllScreens();
@@ -41,7 +46,7 @@ public class ServerRoomPC : MonoBehaviour
             keyVaultTrigger.SetActive(true);
         }
 
-        // Show enter key screen only
+        // Show input screen
         enterKeyScreen.SetActive(true);
     }
 
@@ -55,22 +60,45 @@ public class ServerRoomPC : MonoBehaviour
         {
             successScreen.SetActive(true);
 
+            // 🔥 Disable all cameras
+            foreach (GameObject cam in securityCameras)
+            {
+                if (cam != null)
+                {
+                    cam.SetActive(false);
+                }
+            }
+
+            // 🔥 Disable all bug robots
+            foreach (GameObject robot in bugRobots)
+            {
+                if (robot != null)
+                {
+                    robot.SetActive(false);
+                }
+            }
+
+            // Open server room door
             if (serverDoor != null)
             {
                 serverDoor.OpenDoor();
             }
 
-            // Disable future interaction
+            // Disable interaction forever
             if (interactionTrigger != null)
             {
                 interactionTrigger.MarkCompleted();
             }
+
+            Debug.Log("✅ MAINFRAME HACKED");
         }
         else
         {
             // ❌ Wrong key
             accessDeniedScreen.SetActive(true);
             invalidKeyScreen.SetActive(true);
+
+            Debug.Log("❌ Invalid Key");
         }
     }
 
@@ -79,6 +107,7 @@ public class ServerRoomPC : MonoBehaviour
     {
         pcPanel.SetActive(false);
 
+        // Resume gameplay
         Time.timeScale = 1f;
 
         HideAllScreens();
@@ -87,9 +116,16 @@ public class ServerRoomPC : MonoBehaviour
     // 🔥 HIDE ALL SCREENS
     void HideAllScreens()
     {
-        enterKeyScreen.SetActive(false);
-        accessDeniedScreen.SetActive(false);
-        invalidKeyScreen.SetActive(false);
-        successScreen.SetActive(false);
+        if (enterKeyScreen != null)
+            enterKeyScreen.SetActive(false);
+
+        if (accessDeniedScreen != null)
+            accessDeniedScreen.SetActive(false);
+
+        if (invalidKeyScreen != null)
+            invalidKeyScreen.SetActive(false);
+
+        if (successScreen != null)
+            successScreen.SetActive(false);
     }
 }
