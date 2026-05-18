@@ -34,6 +34,11 @@ public class LevelCompleteTrigger : MonoBehaviour
         Time.timeScale = 0f;
 
         Debug.Log("🎉 LEVEL COMPLETE");
+
+        if (GameplaySessionLogger.Instance != null)
+        {
+            GameplaySessionLogger.Instance.EndSession(true);
+        }
     }
 
     // 🔥 RESTART LEVEL
